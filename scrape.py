@@ -11,18 +11,11 @@ def get_next_friday_date():
     return next_friday.strftime("%a, %d %b %Y 00:00:00 GMT")
 
 def to_24h(time_str):
-    """Converts 4:01 -> 16:01, but leaves 11:00 as 11:00"""
     if not time_str: return "00:00"
-    
     parts = time_str.split(':')
     hour = int(parts[0])
     minute = parts[1]
-    
-    # Candle/Havdalah are always in the afternoon/evening.
-    # If the hour is small (e.g., 1, 2, 3, 4, 5...), add 12.
-    if hour < 11:
-        hour += 12
-        
+    if hour < 11: hour += 12
     return f"{hour}:{minute}"
 
 def scrape_times():
@@ -41,50 +34,50 @@ def scrape_times():
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
-        
-        # TRICK 1: Set a HUGE viewport height so we see Friday & Saturday
+        # Huge viewport to see Friday/Shabbat rows
         page = browser.new_page(viewport={'width': 1280, 'height': 3000})
         
         try:
             page.goto(full_url, timeout=90000)
             
+            # 1. Dismiss Popup (The "Use Location" dialog)
+            # We press Escape to close any modals
+            page.keyboard.press("Escape")
+            
             print("⏳ Waiting for text...")
             page.wait_for_selector("text=הדלקת נרות", timeout=60000)
             
-            # TRICK 2: Scroll to bottom just to be safe
+            # Scroll down to ensure lazy text loads
             page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
             
-            # Get all text
             text_content = page.inner_text("body")
             clean_text = text_content.replace("\n", " ")
 
-            # --- 1. FIND PARSHA ---
-            # Now that Saturday is visible, we look for "Parshat X"
-            # We ignore "Parshat HaShavua" or "Parshat HaChodesh"
-            parsha_matches = re.findall(r'פרשת\s+([\u0590-\u05FF]+(?:[\s\-][\u0590-\u05FF]+)?)', text_content)
+            # --- 1. FIND PARSHA (Updated for COLON) ---
+            # This Regex matches: "פרשת" then OPTIONAL colon ":" then spaces, then Hebrew Name
+            parsha_matches = re.findall(r'פרשת[:\s]+([\u0590-\u05FF]+(?:[\s\-][\u0590-\u05FF]+)?)', text_content)
+            
             for match in parsha_matches:
+                # Filter out generic headers
                 if "השבוע" not in match and "החודש" not in match and "דרכים" not in match:
                     data["parsha"] = match.strip()
                     print(f"📖 Found Parsha: {data['parsha']}")
                     break 
 
-            # --- 2. FIND TIMES & CONVERT TO 24H ---
-            
-            # Find Candle Lighting
+            # --- 2. FIND TIMES ---
             candles_search = re.search(r'הדלקת נרות.*?(\d{1,2}:\d{2})', clean_text)
             if candles_search:
                 raw_time = candles_search.group(1)
-                data["candles"] = to_24h(raw_time) # Convert 4:01 -> 16:01
-                print(f"🕯️ Found Candles: {raw_time} -> {data['candles']}")
+                data["candles"] = to_24h(raw_time)
+                print(f"🕯️ Found Candles: {data['candles']}")
 
-            # Find Havdalah
             havdalah_search = re.search(r'צאת השבת.*?(\d{1,2}:\d{2})', clean_text)
             if havdalah_search:
                 raw_time = havdalah_search.group(1)
-                data["havdalah"] = to_24h(raw_time) # Convert 5:15 -> 17:15
-                print(f"✨ Found Havdalah: {raw_time} -> {data['havdalah']}")
+                data["havdalah"] = to_24h(raw_time)
+                print(f"✨ Found Havdalah: {data['havdalah']}")
 
-            data["source"] = "Itim LaBina (Full View)"
+            data["source"] = "Itim LaBina (Fixed)"
 
         except Exception as e:
             print(f"❌ Error: {e}")
