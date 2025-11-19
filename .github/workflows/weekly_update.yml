@@ -2,9 +2,8 @@ name: Update Shabbat Times
 
 on:
   schedule:
-    # Run every Wednesday and Friday at 08:00 UTC
-    - cron: '0 8 * * 3,5'
-  workflow_dispatch: # Allows you to click a button to run it manually
+    - cron: '0 8 * * 3,5' # Wed & Fri at 8am
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -22,7 +21,9 @@ jobs:
           python-version: '3.9'
 
       - name: Install libraries
-        run: pip install -r requirements.txt
+        run: |
+          pip install -r requirements.txt
+          playwright install chromium
 
       - name: Run Scraper
         run: python scrape.py
