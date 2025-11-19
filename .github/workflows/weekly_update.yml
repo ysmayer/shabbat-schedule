@@ -2,7 +2,7 @@ name: Update Shabbat Times
 
 on:
   schedule:
-    - cron: '0 8 * * 3,5' # Wed & Fri at 8am
+    - cron: '0 8 * * 3,5'
   workflow_dispatch:
 
 permissions:
@@ -27,6 +27,16 @@ jobs:
 
       - name: Run Scraper
         run: python scrape.py
+
+      # NEW STEP: Upload Screenshot Artifacts
+      - name: Upload Debug Screenshots
+        uses: actions/upload-artifact@v4
+        if: always() # Run this even if the script fails
+        with:
+          name: debug-screenshots
+          path: |
+            debug_view.png
+            error_view.png
 
       - name: Commit and Push changes
         run: |
