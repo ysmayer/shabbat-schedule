@@ -12,7 +12,6 @@ def get_next_friday_date():
     return next_friday.strftime("%a, %d %b %Y 00:00:00 GMT")
 
 def scrape_times():
-    # Use the specific date and location
     target_date = get_next_friday_date()
     base_url = "https://itimlabina.co.il/calendar/weekly"
     full_url = f"{base_url}?address=Jerusalem&lat=31.7198189&lng=35.2306758&date={target_date}"
@@ -31,49 +30,52 @@ def scrape_times():
         page = browser.new_page()
         
         try:
-            page.goto(full_url, timeout=60000)
+            page.goto(full_url, timeout=90000) # Increased timeout to 90s
             
-            # 1. Wait for the main table to load
-            page.wait_for_selector("table", timeout=30000)
+            print("⏳ Waiting for 'Shimmers' to vanish and text to appear...")
             
-            # 2. Take a Debug Screenshot (Crucial!)
-            page.screenshot(path="debug_view.png", full_page=True)
-            print("📸 Screenshot saved as debug_view.png")
-
-            # 3. Get the full text of the page to analyze structure
+            # CRITICAL FIX: Wait until the specific text "הדלקת נרות" exists in the DOM
+            # This guarantees the data has loaded.
+            page.wait_for_selector("text=הדלקת נרות", timeout=60000)
+            
+            print("✅ Data loaded! Extracting text...")
+            
+            # Get the text content now that we know it's there
             text_content = page.inner_text("body")
             
-            # --- IMPROVED PARSHA FINDER ---
-            # Find "Parsha" but IGNORE "Parshat HaShavua" (Header)
-            # We look for lines starting with "פרשת" that have more text
+            # 1. Find Parsha
+            # Looks for "Parshat [Name]"
             parsha_matches = re.findall(r'פרשת\s+([\u0590-\u05FF]+(?:[\s\-][\u0590-\u05FF]+)?)', text_content)
             for match in parsha_matches:
                 if "השבוע" not in match and "החודש" not in match:
                     data["parsha"] = match.strip()
-                    break # Stop at the first real parsha name
+                    print(f"📖 Found Parsha: {data['parsha']}")
+                    break 
 
-            # --- IMPROVED TIME FINDER ---
-            # Instead of random regex, we look for the specific structure
-            # Pattern: "Candles" followed closely by a Time (XX:XX)
+            # 2. Find Candles (16:XX or 15:XX) near the words "Hadlakat Nerot"
+            # We remove newlines to make regex easier
+            clean_text = text_content.replace("\n", " ")
             
-            # Find Candle Lighting (Looks for 16:XX or 15:XX or 17:XX etc)
-            candles_search = re.search(r'הדלקת נרות[^\d]*(\d{1,2}:\d{2})', text_content)
+            candles_search = re.search(r'הדלקת נרות.*?(\d{1,2}:\d{2})', clean_text)
             if candles_search:
                 data["candles"] = candles_search.group(1)
+                print(f"🕯️ Found Candles: {data['candles']}")
 
-            # Find Havdalah (Looks for 17:XX or 18:XX)
-            havdalah_search = re.search(r'צאת השבת[^\d]*(\d{1,2}:\d{2})', text_content)
+            # 3. Find Havdalah
+            havdalah_search = re.search(r'צאת השבת.*?(\d{1,2}:\d{2})', clean_text)
             if havdalah_search:
                 data["havdalah"] = havdalah_search.group(1)
+                print(f"✨ Found Havdalah: {data['havdalah']}")
 
-            data["source"] = "Itim LaBina (Smart Scrape)"
-            
-            print(f"✅ RESULT: {data}")
+            data["source"] = "Itim LaBina (Live)"
 
         except Exception as e:
             print(f"❌ Error: {e}")
+            # Take screenshot of the error state
             page.screenshot(path="error_view.png")
         finally:
+            # Save a success screenshot to verify
+            page.screenshot(path="debug_view.png", full_page=True)
             browser.close()
 
     with open('data.json', 'w', encoding='utf-8') as f:
