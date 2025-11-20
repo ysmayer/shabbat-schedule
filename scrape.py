@@ -135,10 +135,12 @@ def scrape_times():
         "candles": "16:00",
         "havdalah": "17:00",
         "dvar_torah": "",
+        "dvar_source": "",
         "source": "Hybrid Data"
     }
 
     english_parsha = ""
+    hebrew_parsha_name = ""
 
     # 1. METADATA
     print("🤖 Step 1: Hebcal Metadata...")
@@ -149,6 +151,7 @@ def scrape_times():
         parsha_item = next((x for x in h_data['items'] if x['category'] == 'parashat'), None)
         if parsha_item:
             data["parsha"] = parsha_item['hebrew'].replace("פרשת", "").strip()
+            hebrew_parsha_name = data["parsha"]
             english_parsha = parsha_item['title'].replace("Parashat ", "").strip()
             print(f"📖 Parsha: {data['parsha']} ({english_parsha})")
 
@@ -166,7 +169,10 @@ def scrape_times():
         text = fetch_sefaria_text(english_parsha)
         
         if text:
-            # Safety limit: If even the shortest one is huge, cut it.
+            # Create a nice citation source
+            data["dvar_source"] = f"מקור: שפת אמת, {hebrew_parsha_name}"
+            
+            # Safety limit
             limit = 600
             if len(text) > limit:
                 cut_index = text.rfind('.', 0, limit)
