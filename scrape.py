@@ -82,3 +82,127 @@ def fetch_sefaria_text(parsha_name):
     for ref in variations:
         # Replace spaces with underscores for URL
         safe_ref = ref.replace(" ", "_")
+        encoded_ref = urllib.parse.quote(safe_ref)
+        
+        # We use v3 API to get the structure better, or text API
+        url = f"https://www.sefaria.org/api/texts/{encoded_ref}?lang=he"
+        print(f"Trying Sefaria URL: {url}")
+        
+        try:
+            resp = requests.get(url)
+            if resp.status_code == 200:
+                data = resp.json()
+                if 'he' in data and data['he']:
+                    # Sefaria returns a list of comments/paragraphs.
+                    # We usually want the first significant piece of text.
+                    raw_text = data['he']
+                    
+                    # Drill down if it's a nested list (Chapter -> Verse -> Comment)
+                    while isinstance(raw_text, list):
+                        if not raw_text: break
+                        # Try to find a non-empty string in the list
+                        found = False
+                        for item in raw_text:
+                            if isinstance(item, str) and len(item) > 20:
+                                raw_text = item
+                                found = True
+                                break
+                            if isinstance(item, list):
+                                raw_text = item
+                                found = True
+                                break
+                        if not found and len(raw_text) > 0:
+                             raw_text = raw_text[0]
+                        elif not found:
+                            break
+
+                    if isinstance(raw_text, str) and len(raw_text) > 10:
+                        return strip_html(raw_text)
+        except Exception as e:
+            print(f"❌ Error fetching {url}: {e}")
+    
+    return None
+
+def scrape_times():
+    friday_iso = get_next_friday_date()
+    friday_itin = get_friday_fmt_itin()
+    
+    data = {
+        "parsha": "שבת שלום",
+        "description": "", 
+        "candles": "16:00",
+        "havdalah": "17:00",
+        "dvar_torah": "",
+        "source": "Hybrid Data"
+    }
+
+    english_parsha = ""
+
+    # --- 1. METADATA (Hebcal) ---
+    print("🤖 Step 1: Hebcal Metadata...")
+    try:
+        h_url = f"https://www.hebcal.com/shabbat?cfg=json&geonameid=281184&M=on&date={friday_iso}"
+        h_data = requests.get(h_url).json()
+        
+        parsha_item = next((x for x in h_data['items'] if x['category'] == 'parashat'), None)
+        if parsha_item:
+            data["parsha"] = parsha_item['hebrew'].replace("פרשת", "").strip()
+            english_parsha = parsha_item['title'].replace("Parashat ", "").strip()
+            print(f"📖 Parsha: {data['parsha']} ({english_parsha})")
+
+        mevarchim_item = next((x for x in h_data['items'] if x['category'] == 'mevarchim'), None)
+        if mevarchim_item:
+            data["description"] = mevarchim_item['hebrew']
+            print(f"🌙 Status: {data['description']}")
+
+    except Exception as e:
+        print(f"❌ Hebcal Error: {e}")
+
+    # --- 2. SEFAT EMET (Now with Book Mapping) ---
+    if english_parsha:
+        print(f"📚 Step 2: Fetching Sefat Emet for {english_parsha}...")
+        text = fetch_sefaria_text(english_parsha)
+        
+        if text:
+            # Limit length nicely (approx 350 chars)
+            short_text = (text[:350] + '...') if len(text) > 350 else text
+            data["dvar_torah"] = short_text
+            print("✅ Sefat Emet Found!")
+        else:
+            print("⚠️ Sefat Emet NOT found.")
+
+    # --- 3. ITIM LABINA ---
+    print("🌍 Step 3: Scraping Times...")
+    base_url = "https://itimlabina.co.il/calendar/weekly"
+    full_url = f"{base_url}?address=Jerusalem&lat=31.7198189&lng=35.2306758&date={friday_itin}"
+    
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        page = browser.new_page(viewport={'width': 1280, 'height': 3000})
+        
+        try:
+            page.goto(full_url, timeout=60000)
+            page.keyboard.press("Escape")
+            page.wait_for_selector("text=הדלקת נרות", timeout=60000)
+            
+            text_content = page.inner_text("body")
+            clean_text = text_content.replace("\n", " ")
+
+            candles_search = re.search(r'הדלקת נרות.*?(\d{1,2}:\d{2})', clean_text)
+            if candles_search:
+                data["candles"] = to_24h(candles_search.group(1))
+
+            havdalah_search = re.search(r'צאת השבת.*?(\d{1,2}:\d{2})', clean_text)
+            if havdalah_search:
+                data["havdalah"] = to_24h(havdalah_search.group(1))
+
+        except Exception as e:
+            print(f"❌ Scrape Error: {e}")
+        finally:
+            browser.close()
+
+    with open('data.json', 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+if __name__ == "__main__":
+    scrape_times()
