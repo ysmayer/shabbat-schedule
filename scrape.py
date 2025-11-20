@@ -6,7 +6,6 @@ from datetime import date, timedelta
 from playwright.sync_api import sync_playwright
 
 # --- CONFIGURATION: Parsha to Book Mapping ---
-# This ensures we generate the correct Sefaria URL (e.g. "Sefat_Emet,_Genesis,_Chayei_Sara")
 PARSHA_MAP = {
     # GENESIS
     "Bereshit": "Genesis", "Noach": "Genesis", "Lech-Lecha": "Genesis", "Vayera": "Genesis", 
@@ -55,36 +54,19 @@ def to_24h(time_str):
 def strip_html(text):
     clean = re.compile('<.*?>')
     text = re.sub(clean, '', text)
-    # Remove footnotes [1], [2]
     text = re.sub(r'\[\d+\]', '', text)
     return text.strip()
 
 def fetch_sefaria_text(parsha_name):
-    """
-    Constructs the correct URL using the Book Name.
-    Example: "Sefat_Emet,_Genesis,_Chayei_Sara"
-    """
     book = PARSHA_MAP.get(parsha_name)
-    
-    # Prepare variations to try
     variations = []
-    
-    # Option 1: The correct structure (Book, Parsha)
-    if book:
-        variations.append(f"Sefat_Emet,_{book},_{parsha_name}")
-    
-    # Option 2: Direct Parsha (Fallback)
+    if book: variations.append(f"Sefat_Emet,_{book},_{parsha_name}")
     variations.append(f"Sefat_Emet,_{parsha_name}")
-    
-    # Option 3: "Parashat" prefix
     variations.append(f"Sefat_Emet,_Parashat_{parsha_name}")
 
     for ref in variations:
-        # Replace spaces with underscores for URL
         safe_ref = ref.replace(" ", "_")
         encoded_ref = urllib.parse.quote(safe_ref)
-        
-        # We use v3 API to get the structure better, or text API
         url = f"https://www.sefaria.org/api/texts/{encoded_ref}?lang=he"
         print(f"Trying Sefaria URL: {url}")
         
@@ -93,14 +75,9 @@ def fetch_sefaria_text(parsha_name):
             if resp.status_code == 200:
                 data = resp.json()
                 if 'he' in data and data['he']:
-                    # Sefaria returns a list of comments/paragraphs.
-                    # We usually want the first significant piece of text.
                     raw_text = data['he']
-                    
-                    # Drill down if it's a nested list (Chapter -> Verse -> Comment)
                     while isinstance(raw_text, list):
                         if not raw_text: break
-                        # Try to find a non-empty string in the list
                         found = False
                         for item in raw_text:
                             if isinstance(item, str) and len(item) > 20:
@@ -138,7 +115,7 @@ def scrape_times():
 
     english_parsha = ""
 
-    # --- 1. METADATA (Hebcal) ---
+    # 1. METADATA
     print("🤖 Step 1: Hebcal Metadata...")
     try:
         h_url = f"https://www.hebcal.com/shabbat?cfg=json&geonameid=281184&M=on&date={friday_iso}"
@@ -158,20 +135,28 @@ def scrape_times():
     except Exception as e:
         print(f"❌ Hebcal Error: {e}")
 
-    # --- 2. SEFAT EMET (Now with Book Mapping) ---
+    # 2. SEFAT EMET
     if english_parsha:
         print(f"📚 Step 2: Fetching Sefat Emet for {english_parsha}...")
         text = fetch_sefaria_text(english_parsha)
         
         if text:
-            # Limit length nicely (approx 350 chars)
-            short_text = (text[:350] + '...') if len(text) > 350 else text
-            data["dvar_torah"] = short_text
+            # Logic: Allow up to 1000 chars. Try to cut cleanly at the last period.
+            limit = 1000
+            if len(text) > limit:
+                cut_index = text.rfind('.', 0, limit)
+                if cut_index > 100: # Ensure we don't cut too early
+                    data["dvar_torah"] = text[:cut_index+1] + "..."
+                else:
+                    data["dvar_torah"] = text[:limit] + "..."
+            else:
+                data["dvar_torah"] = text
+            
             print("✅ Sefat Emet Found!")
         else:
             print("⚠️ Sefat Emet NOT found.")
 
-    # --- 3. ITIM LABINA ---
+    # 3. ITIM LABINA
     print("🌍 Step 3: Scraping Times...")
     base_url = "https://itimlabina.co.il/calendar/weekly"
     full_url = f"{base_url}?address=Jerusalem&lat=31.7198189&lng=35.2306758&date={friday_itin}"
