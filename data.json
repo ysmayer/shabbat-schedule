@@ -1,6 +1,8 @@
 {
-  "parsha": "תולדות\nהפטרה",
+  "parsha": "תולדות",
+  "description": "",
   "candles": "16:01",
   "havdalah": "17:15",
-  "source": "Itim LaBina (Fixed)"
+  "dvar_torah": "",
+  "source": "Combined Data"
 }
