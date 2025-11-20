@@ -3,38 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>לוז שבת - קהילת אורות ישראל</title>
-    
+    <title>לוח שבת - קהילת אורות ישראל</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Frank+Ruhl+Libre:wght@700&display=swap" rel="stylesheet">
 
     <style>
         :root { --primary: #1a3b80; --accent: #c5a059; --bg-color: #f0f4f8; --card-bg: #ffffff; }
-        body { font-family: 'Rubik', sans-serif; background-color: var(--bg-color); margin: 0; padding: 20px; color: #333; text-align: center; min-height: 100vh; }
-        .container { max-width: 480px; margin: 0 auto; background: var(--card-bg); border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); overflow: hidden; position: relative; padding-bottom: 30px; }
-        .header { background: linear-gradient(135deg, var(--primary) 0%, #2a5298 100%); color: white; padding: 30px 20px; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; margin-bottom: 20px; }
-        .logo-container { width: 90px; height: 90px; background: white; border-radius: 50%; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        
+        body { 
+            font-family: 'Rubik', sans-serif; 
+            background-color: var(--bg-color); 
+            background-image: url('https://www.transparenttextures.com/patterns/white-wall-3.png');
+            margin: 0; padding: 20px; color: #333; text-align: center; min-height: 100vh; 
+        }
+
+        .container { 
+            max-width: 550px; margin: 0 auto; background: var(--card-bg); 
+            border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
+            overflow: hidden; position: relative; padding-bottom: 30px; 
+        }
+
+        /* Header */
+        .header { 
+            background: linear-gradient(135deg, var(--primary) 0%, #2a5298 100%); 
+            color: white; padding: 30px 20px; 
+            border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; 
+            margin-bottom: 20px; 
+        }
+        
+        .logo-container { width: 90px; height: 90px; background: white; border-radius: 50%; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; }
         .logo-img { width: 80%; height: 80%; object-fit: contain; }
-        h1 { font-size: 1.5rem; margin: 5px 0; font-weight: 700; }
+        
+        h1 { font-size: 1.6rem; margin: 5px 0; font-weight: 700; }
+        h2 { font-size: 1.2rem; margin: 5px 0; color: #ffd700; font-weight: 500; display: none; } /* Hidden by default */
+
+        /* Times */
         .times-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 0 20px; margin-top: -10px; }
         .time-card { background: white; padding: 15px; border-radius: 16px; border: 1px solid #eee; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-        .time-big { font-size: 1.8rem; font-weight: 700; color: var(--primary); display: block; line-height: 1.2; }
+        .time-big { font-size: 1.8rem; font-weight: 700; color: var(--primary); display: block; }
         .time-label { font-size: 0.85rem; color: #666; margin-top: 4px; display: block; }
+
         .section { padding: 20px 25px; text-align: right; border-bottom: 1px dashed #e0e0e0; }
-        .section:last-child { border-bottom: none; }
         .section-title { color: var(--accent); font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; }
         .event-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 1rem; }
         .event-time { font-weight: 700; color: var(--primary); background: #f0f4ff; padding: 2px 8px; border-radius: 6px; }
-        .note-box { background: linear-gradient(to right, #fff9e6, #fffdf5); border-right: 4px solid var(--accent); padding: 12px; border-radius: 8px; font-size: 0.9rem; margin-top: 8px; color: #664d03; }
-        .btn { background: var(--primary); color: white; padding: 12px 30px; text-decoration: none; border-radius: 50px; font-weight: bold; display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; }
+
+        /* Dvar Torah */
+        .dvar-torah-box {
+            margin: 20px; padding: 15px;
+            background-color: #fdfbf7; border: 1px solid #e8e0d0; border-radius: 12px;
+            text-align: justify; direction: rtl; display: none; /* Hidden until loaded */
+        }
+        .dt-title { font-family: 'Frank Ruhl Libre', serif; color: var(--primary); font-size: 1.1rem; font-weight: bold; margin-bottom: 8px; text-align: center; }
+        .dt-text { font-size: 0.9rem; line-height: 1.5; color: #444; }
+
+        /* Buttons */
+        .btn { background: var(--primary); color: white; padding: 12px 30px; text-decoration: none; border-radius: 50px; font-weight: bold; display: inline-flex; align-items: center; gap: 8px; border: none; cursor: pointer; font-size: 1rem; }
+        
+        /* Print Button Wrapper */
+        .top-controls { margin-bottom: 15px; display: flex; justify-content: center; }
+        .print-btn { background: #555; font-size: 0.9rem; padding: 8px 20px; }
+
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 50px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .hidden { display: none; }
         .fade-in { animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* --- PRINT STYLES (Clean Version) --- */
+        @media print {
+            body { background: white; padding: 0; margin: 0; }
+            .container { box-shadow: none; border: none; max-width: 100%; width: 100%; border-radius: 0; padding-bottom: 0; }
+            .header { background: none !important; color: black !important; padding: 10px 0; border-bottom: 2px solid #333; border-radius: 0; box-shadow: none; }
+            .logo-container { border: 1px solid #eee; }
+            
+            h1 { color: black; font-size: 2rem; margin-bottom: 5px; }
+            h2 { color: #444 !important; display: block !important; font-weight: bold; }
+
+            /* Remove Colors */
+            .time-big { color: black !important; }
+            .section-title { color: black !important; text-decoration: underline; }
+            .event-time { background: none !important; color: black !important; border: 1px solid #ccc; }
+            
+            /* Hide Controls */
+            .top-controls, .btn, .loader { display: none !important; }
+            
+            /* Boxes */
+            .note-box, .dvar-torah-box { background: white !important; border: 1px solid #000 !important; color: black !important; }
+            
+            .section { border-bottom: 1px solid #ccc; padding: 10px 0; }
+            .times-grid { padding: 10px 0; gap: 20px; }
+            .time-card { box-shadow: none; border: 1px solid #000; }
+        }
     </style>
 </head>
 <body>
+
+<!-- Print Button -->
+<div class="top-controls">
+    <button onclick="window.print()" class="btn print-btn">
+        🖨️ הדפס לוז
+    </button>
+</div>
 
 <div class="container">
     <div id="loader" class="loader"></div>
@@ -42,22 +112,19 @@
     <div id="content" class="hidden">
         <div class="header">
             <div class="logo-container">
-                <!-- Replace logo.png if you have your own file -->
-                <img src="logo.jpg" alt="Logo" class="logo-img" onerror="this.src='https://img.icons8.com/color/96/star-of-david.png'">
+                <img src="logo.png" alt="Logo" class="logo-img" onerror="this.src='https://img.icons8.com/color/96/star-of-david.png'">
             </div>
             <div>קהילת אורות ישראל</div>
-            <!-- ID MATCH 1: parsha-name -->
-            <h1 id="parsha-name">טוען...</h1>
+            <h1 id="parsha-name">...</h1>
+            <h2 id="mevarchim-text"></h2>
         </div>
 
         <div class="times-grid">
             <div class="time-card">
-                <!-- ID MATCH 2: candle-lighting -->
                 <span class="time-big" id="candle-lighting">--:--</span>
                 <span class="time-label">🕯️ כניסת שבת</span>
             </div>
             <div class="time-card">
-                <!-- ID MATCH 3: havdalah -->
                 <span class="time-big" id="havdalah">--:--</span>
                 <span class="time-label">✨ צאת השבת</span>
             </div>
@@ -67,7 +134,6 @@
             <div class="section-title">📅 ערב שבת</div>
             <div class="event-row">
                 <span class="event-desc">מנחה, קבלת שבת וערבית</span>
-                <!-- ID MATCH 4: mincha-erev -->
                 <span class="event-time" id="mincha-erev">--:--</span>
             </div>
         </div>
@@ -82,9 +148,16 @@
                 <span class="event-desc">תפילת ילדים</span>
                 <span class="event-time">09:15</span>
             </div>
-            <div class="note-box">
+            
+            <div class="note-box" style="background: #fff3cd; padding: 10px; border-radius: 5px; margin-top: 5px; font-size: 0.9rem;">
                  💬 שיעור מאת הרב נתנאל בהלכות שבת לאחר התפילה
             </div>
+        </div>
+
+        <!-- Dvar Torah -->
+        <div id="dvar-torah-container" class="dvar-torah-box">
+            <div class="dt-title">📖 שפת אמת לפרשה</div>
+            <div id="dvar-torah-text" class="dt-text"></div>
         </div>
 
         <div class="section">
@@ -99,15 +172,13 @@
             </div>
             <div class="event-row">
                 <span class="event-desc">ערבית של מוצאי שבת</span>
-                <!-- ID MATCH 5: arvit-motzash -->
                 <span class="event-time" id="arvit-motzash">--:--</span>
             </div>
         </div>
 
         <div style="padding: 30px;">
-            <a href="https://ul.waze.com/ul?ll=31.72202552%2C35.23175955&navigate=yes&zoom=17&utm_campaign=default&utm_source=waze_website&utm_medium=lm_share_location" class="btn">
-                <img src="waze.svg" width="22">
-                נווט לבית הכנסת
+            <a href="https://ul.waze.com/ul?ll=31.72202552%2C35.23175955&navigate=yes&zoom=17" class="btn">
+                🚗 נווט לבית הכנסת
             </a>
         </div>
     </div>
@@ -116,58 +187,51 @@
 <script>
     async function fetchShabbatTimes() {
         try {
-            // 1. Fetch data.json with Cache Buster (timestamp)
             const response = await fetch('data.json?t=' + new Date().getTime());
-            
-            if (!response.ok) {
-                throw new Error("Could not load data.json");
-            }
-
             const data = await response.json();
 
-            // 2. Populate Basic IDs
+            // Texts
             setText('parsha-name', "פרשת " + data.parsha);
             setText('candle-lighting', data.candles);
             setText('havdalah', data.havdalah);
+            
+            // Mevarchim Logic
+            if (data.description) {
+                const mevDiv = document.getElementById('mevarchim-text');
+                mevDiv.innerText = data.description;
+                mevDiv.style.display = 'block';
+            }
 
-            // 3. Calculate Derived Times
-            // We use a calculator function for Mincha and Arvit
-            const mincha = calculateMincha(data.candles);
-            setText('mincha-erev', mincha);
+            // Sefat Emet Logic
+            if (data.dvar_torah) {
+                document.getElementById('dvar-torah-text').innerText = data.dvar_torah;
+                document.getElementById('dvar-torah-container').style.display = 'block';
+            }
 
-            const arvit = calculateArvit(data.havdalah);
-            setText('arvit-motzash', arvit);
+            // Derived Times
+            setText('mincha-erev', calculateMincha(data.candles));
+            setText('arvit-motzash', calculateArvit(data.havdalah));
 
-            // 4. Show the page
+            // Show
             document.getElementById('loader').style.display = 'none';
-            const content = document.getElementById('content');
-            content.classList.remove('hidden');
-            content.classList.add('fade-in');
+            document.getElementById('content').classList.remove('hidden');
+            document.getElementById('content').classList.add('fade-in');
 
         } catch (error) {
-            console.error("Error details:", error);
-            // Show fallback text if error
+            console.error(error);
             setText('parsha-name', "טעינה נכשלה");
             document.getElementById('loader').style.display = 'none';
             document.getElementById('content').classList.remove('hidden');
         }
     }
 
-    // --- Safe Setter Helper ---
-    // This prevents the crash if an ID is missing
     function setText(id, text) {
         const el = document.getElementById(id);
-        if (el) {
-            el.innerText = text;
-        } else {
-            console.warn(`Missing element ID: ${id}`);
-        }
+        if (el) el.innerText = text;
     }
 
-    // --- Calculations ---
-
     function timeToMinutes(timeStr) {
-        if (!timeStr) return 0;
+        if(!timeStr) return 0;
         const parts = timeStr.split(':');
         return (parseInt(parts[0]) * 60) + parseInt(parts[1]);
     }
@@ -179,8 +243,7 @@
     }
 
     function calculateMincha(candleTimeStr) {
-        // Rule: Candles + 15min. Round up to 5. Max Candles + 18.
-        if (!candleTimeStr) return "--:--";
+        if(!candleTimeStr) return "--:--";
         const cTime = timeToMinutes(candleTimeStr);
         let target = cTime + 15;
         let rounded = Math.ceil(target / 5) * 5;
@@ -189,8 +252,7 @@
     }
 
     function calculateArvit(havdalahTimeStr) {
-        // Rule: Havdalah - 5min. Round to 5. Max 8 mins before.
-        if (!havdalahTimeStr) return "--:--";
+        if(!havdalahTimeStr) return "--:--";
         const hTime = timeToMinutes(havdalahTimeStr);
         let target = hTime - 5;
         let rounded = Math.round(target / 5) * 5;
@@ -198,7 +260,6 @@
         return minutesToTime(rounded);
     }
 
-    // Run Logic
     fetchShabbatTimes();
 </script>
 
