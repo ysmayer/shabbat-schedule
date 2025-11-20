@@ -134,4 +134,85 @@ def scrape_times():
         "description": "", 
         "candles": "16:00",
         "havdalah": "17:00",
-        "dvar_to
+        "dvar_torah": "",
+        "source": "Hybrid Data"
+    }
+
+    english_parsha = ""
+
+    # 1. METADATA
+    print("🤖 Step 1: Hebcal Metadata...")
+    try:
+        h_url = f"https://www.hebcal.com/shabbat?cfg=json&geonameid=281184&M=on&date={friday_iso}"
+        h_data = requests.get(h_url).json()
+        
+        parsha_item = next((x for x in h_data['items'] if x['category'] == 'parashat'), None)
+        if parsha_item:
+            data["parsha"] = parsha_item['hebrew'].replace("פרשת", "").strip()
+            english_parsha = parsha_item['title'].replace("Parashat ", "").strip()
+            print(f"📖 Parsha: {data['parsha']} ({english_parsha})")
+
+        mevarchim_item = next((x for x in h_data['items'] if x['category'] == 'mevarchim'), None)
+        if mevarchim_item:
+            data["description"] = mevarchim_item['hebrew']
+            print(f"🌙 Status: {data['description']}")
+
+    except Exception as e:
+        print(f"❌ Hebcal Error: {e}")
+
+    # 2. SEFAT EMET
+    if english_parsha:
+        print(f"📚 Step 2: Fetching Sefat Emet for {english_parsha}...")
+        text = fetch_sefaria_text(english_parsha)
+        
+        if text:
+            # Safety limit: If even the shortest one is huge, cut it.
+            limit = 600
+            if len(text) > limit:
+                cut_index = text.rfind('.', 0, limit)
+                if cut_index > 100:
+                    data["dvar_torah"] = text[:cut_index+1] + "..."
+                else:
+                    data["dvar_torah"] = text[:limit] + "..."
+            else:
+                data["dvar_torah"] = text
+            
+            print("✅ Sefat Emet Found!")
+        else:
+            print("⚠️ Sefat Emet NOT found.")
+
+    # 3. ITIM LABINA
+    print("🌍 Step 3: Scraping Times...")
+    base_url = "https://itimlabina.co.il/calendar/weekly"
+    full_url = f"{base_url}?address=Jerusalem&lat=31.7198189&lng=35.2306758&date={friday_itin}"
+    
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        page = browser.new_page(viewport={'width': 1280, 'height': 3000})
+        
+        try:
+            page.goto(full_url, timeout=60000)
+            page.keyboard.press("Escape")
+            page.wait_for_selector("text=הדלקת נרות", timeout=60000)
+            
+            text_content = page.inner_text("body")
+            clean_text = text_content.replace("\n", " ")
+
+            candles_search = re.search(r'הדלקת נרות.*?(\d{1,2}:\d{2})', clean_text)
+            if candles_search:
+                data["candles"] = to_24h(candles_search.group(1))
+
+            havdalah_search = re.search(r'צאת השבת.*?(\d{1,2}:\d{2})', clean_text)
+            if havdalah_search:
+                data["havdalah"] = to_24h(havdalah_search.group(1))
+
+        except Exception as e:
+            print(f"❌ Scrape Error: {e}")
+        finally:
+            browser.close()
+
+    with open('data.json', 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+if __name__ == "__main__":
+    scrape_times()
