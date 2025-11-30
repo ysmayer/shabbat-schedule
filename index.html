@@ -5,13 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>לוח שבת - קהילת אורות ישראל</title>
     
-    <!-- Fonts: Rubik (Modern) and Frank Ruhl Libre (Classic Print) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&family=Frank+Ruhl+Libre:wght@500;700&display=swap" rel="stylesheet">
 
     <style>
         :root { 
-            --primary: #1a3b80; /* The Blue from the logo */
+            --primary: #1a3b80; 
             --text: #000000;
             --bg-web: #f4f6f9;
         }
@@ -23,59 +22,50 @@
             color: var(--text);
         }
 
-        /* --- WEB CONTAINER (Phone View) --- */
+        /* --- WEB CONTAINER --- */
         .web-container {
             max-width: 600px;
             margin: 20px auto;
             background: white;
-            padding: 20px;
+            padding: 40px; /* Increased padding */
             border-radius: 15px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            min-height: 800px;
+            position: relative;
         }
-
-        /* --- CONTROLS (Buttons) --- */
-        .controls { 
-            display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; 
-        }
-        .btn {
-            background: var(--primary); color: white; border: none; padding: 10px 20px;
-            border-radius: 20px; cursor: pointer; font-family: 'Rubik', sans-serif;
-            text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 5px;
-        }
-        .btn:hover { opacity: 0.9; }
-        .btn-outline { background: white; color: var(--primary); border: 1px solid var(--primary); }
 
         /* --- HEADER --- */
         .header-row {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 10px;
-            border-bottom: 2px solid #eee; /* Web only line */
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee; 
             padding-bottom: 10px;
         }
         
         .bsd { font-family: 'Frank Ruhl Libre', serif; font-size: 14px; }
-        .logo-img { height: 60px; object-fit: contain; }
+        .logo-img { height: 70px; object-fit: contain; }
 
         .main-title {
             text-align: center;
             color: var(--primary);
-            font-family: 'Rubik', sans-serif; /* Matches PDF Title Font */
+            font-family: 'Rubik', sans-serif;
             font-weight: 700;
-            font-size: 24px;
+            font-size: 26px;
             margin: 10px 0 5px 0;
         }
         
         .sub-title {
             text-align: center;
             font-weight: 700;
-            font-size: 16px;
-            margin-bottom: 25px;
+            font-size: 18px;
+            /* INCREASED SPACING HERE */
+            margin-bottom: 60px; 
             min-height: 20px;
         }
 
-        /* --- THE SPLIT SECTION (Grid) --- */
+        /* --- GRID LAYOUT (Top Section) --- */
         .top-section-grid {
             display: grid;
             grid-template-columns: 1fr; /* Mobile: Stacked */
@@ -85,7 +75,6 @@
 
         .times-column {
             text-align: right;
-            padding-right: 10px;
         }
 
         .image-column {
@@ -102,13 +91,14 @@
             border: 1px solid #ccc;
         }
 
-        /* --- TIME ROWS --- */
+        /* --- TIME ROWS (Global Styles) --- */
         .time-row {
             display: flex;
             gap: 15px;
-            margin-bottom: 8px;
+            margin-bottom: 12px; /* A bit more space between rows */
             font-size: 18px;
             align-items: baseline;
+            justify-content: flex-start; /* ALIGN RIGHT (in RTL) */
         }
         .time { font-weight: 700; min-width: 55px; }
         .desc { font-weight: 400; }
@@ -117,55 +107,46 @@
             color: var(--primary);
             font-weight: 700;
             font-size: 18px;
-            margin-top: 25px;
-            margin-bottom: 10px;
-        }
-
-        /* --- CENTERED LISTS (Shabbat Day) --- */
-        .centered-section {
-            text-align: center;
-            margin-top: 30px;
-        }
-        
-        .centered-header {
-            color: var(--primary);
-            font-weight: 700;
-            font-size: 18px;
+            margin-top: 35px;
             margin-bottom: 15px;
+            text-align: right;
         }
 
-        .center-row {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 8px;
-            font-size: 18px;
+        /* --- BOTTOM SECTION (Now Right Aligned) --- */
+        .bottom-section {
+            text-align: right; /* Changed from Center to Right */
+            margin-top: 30px;
         }
 
         .note-text {
-            margin-top: 5px;
+            margin-top: 10px;
             font-size: 16px;
+            text-align: right; /* Align note to right */
+            margin-right: 70px; /* Indent slightly to align with text not time */
         }
 
         .footer-shabbat {
             text-align: center;
             font-size: 24px;
             font-weight: 700;
-            margin-top: 40px;
+            margin-top: 60px;
             margin-bottom: 20px;
         }
 
-        /* --- DVAR TORAH (Web Only) --- */
-        .dvar-torah-container {
-            margin-top: 30px;
-            border-top: 1px solid #eee;
-            padding-top: 10px;
+        /* --- CONTROLS (Moved to Bottom) --- */
+        .controls { 
+            display: flex; justify-content: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee;
         }
-        .dt-btn {
-            width: 100%; text-align: right; background: none; border: none;
-            font-size: 16px; font-weight: bold; color: var(--primary);
-            cursor: pointer; display: flex; justify-content: space-between;
+        .btn {
+            background: var(--primary); color: white; border: none; padding: 12px 25px;
+            border-radius: 25px; cursor: pointer; font-family: 'Rubik', sans-serif;
+            text-decoration: none; font-size: 16px; display: flex; align-items: center; gap: 8px;
         }
+        .btn:hover { opacity: 0.9; }
+
+        /* --- DVAR TORAH --- */
+        .dvar-torah-container { margin-top: 30px; border-top: 1px solid #eee; padding-top: 10px; }
+        .dt-btn { width: 100%; text-align: right; background: none; border: none; font-size: 16px; font-weight: bold; color: var(--primary); cursor: pointer; display: flex; justify-content: space-between; }
         .dt-content { display: none; padding: 10px; background: #f9f9f9; font-size: 14px; line-height: 1.5; }
 
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 50px auto; }
@@ -173,103 +154,44 @@
         .hidden { display: none; }
 
         /* ==========================================================================
-           🖨️ PRINT STYLES - PDF REPLICA
+           🖨️ PRINT STYLES
            ========================================================================== */
         @media print {
             @page { size: A4 portrait; margin: 1cm; }
             
-            body { 
-                background: white; 
-                font-family: 'Rubik', sans-serif; /* Matches PDF */
-                -webkit-print-color-adjust: exact;
-            }
+            body { background: white; -webkit-print-color-adjust: exact; }
 
-            .web-container {
-                box-shadow: none;
-                margin: 0;
-                padding: 0;
-                max-width: 100%;
-            }
+            .web-container { box-shadow: none; margin: 0; padding: 0; max-width: 100%; border: none; }
+            .controls, .loader, .dvar-torah-container, .waze-link { display: none !important; }
 
-            /* Hide Web Elements */
-            .controls, .loader, .dvar-torah-container, .waze-link { 
-                display: none !important; 
-            }
-
-            /* Header Layout */
-            .header-row {
-                border-bottom: none;
-                margin-bottom: 0;
-                /* In PDF: Logo Left, BSD Right */
-                /* Flex-direction is row. RTL means Start=Right. */
-                /* We need Logo at End (Left) and BSD at Start (Right) */
-                justify-content: space-between; 
-            }
-            .bsd { font-size: 16px; }
+            /* Header */
+            .header-row { border-bottom: none; margin-bottom: 0; justify-content: space-between; }
             .logo-img { height: 70px; }
+            .main-title { font-size: 28px; margin-top: 10px; color: #1a3b80 !important; }
+            .sub-title { font-size: 18px; margin-bottom: 60px; } /* Big space in print too */
 
-            .main-title { 
-                font-size: 28px; 
-                margin-top: 10px;
-                color: #1a3b80 !important; /* Force Blue */
-            }
-            .sub-title { font-size: 18px; margin-bottom: 30px; }
-
-            /* Top Section: Split Layout */
+            /* Grid Layout */
             .top-section-grid {
                 display: grid;
-                /* In RTL: Col 1 is Right, Col 2 is Left */
-                grid-template-columns: 1fr 280px; 
+                grid-template-columns: 1fr 280px; /* Text Right, Image Left */
                 gap: 40px;
                 align-items: start;
             }
 
-            .times-column {
-                text-align: right;
-            }
+            /* Image */
+            .shul-image { width: 100%; border: 1px solid #ccc; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
+
+            /* Alignments */
+            .times-column, .bottom-section, .section-header { text-align: right; }
+            .time-row { justify-content: flex-start; } /* Force Right Align */
             
-            /* Text Styling similar to PDF */
-            .time-row { 
-                font-size: 18px; 
-                margin-bottom: 10px;
-            }
-            .time { font-weight: 800; }
-            
-            .section-header {
-                color: #1a3b80 !important;
-                font-size: 18px;
-                margin-top: 30px;
-            }
-
-            /* Image Styling */
-            .shul-image {
-                width: 100%;
-                border: 1px solid #ccc;
-                /* Optional: Add slight shadow like PDF */
-                box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-            }
-
-            /* Center Lists */
-            .centered-section { margin-top: 40px; }
-            .centered-header { 
-                color: #1a3b80 !important; 
-                font-size: 18px; 
-            }
-            .center-row { font-size: 18px; margin-bottom: 6px; }
-            .note-text { font-size: 16px; margin-top: 5px; }
-
-            .footer-shabbat { margin-top: 60px; font-size: 28px; }
+            .section-header { color: #1a3b80 !important; margin-top: 30px; }
+            .footer-shabbat { margin-top: 80px; }
+            .note-text { margin-right: 70px; }
         }
     </style>
 </head>
 <body>
-
-<!-- Web Controls (Hidden in Print) -->
-<div class="controls">
-    <button onclick="window.print()" class="btn">
-        🖨️ הדפס / שמור כ-PDF
-    </button>
-</div>
 
 <div class="web-container">
     <div id="loader" class="loader"></div>
@@ -287,23 +209,20 @@
         <div class="main-title" id="parsha-name">שבת קודש פרשת...</div>
         <div class="sub-title" id="mevarchim-text"></div>
 
-        <!-- TOP SECTION: GRID (Text Right, Image Left) -->
+        <!-- TOP SECTION GRID -->
         <div class="top-section-grid">
             
-            <!-- RIGHT COLUMN (In RTL) -->
+            <!-- RIGHT COLUMN: Times -->
             <div class="times-column">
-                <!-- Candle Lighting -->
                 <div class="time-row">
                     <span class="time" id="candle-lighting">--:--</span>
                     <span class="desc">הדלקת נרות שבת</span>
                 </div>
-                <!-- Havdalah -->
                 <div class="time-row">
                     <span class="time" id="havdalah">--:--</span>
                     <span class="desc">צאת השבת</span>
                 </div>
 
-                <!-- Erev Shabbat Header -->
                 <div class="section-header">ערב שבת</div>
                 <div class="time-row">
                     <span class="time" id="mincha-erev">--:--</span>
@@ -311,23 +230,22 @@
                 </div>
             </div>
 
-            <!-- LEFT COLUMN (In RTL) -->
+            <!-- LEFT COLUMN: Image -->
             <div class="image-column">
-                <!-- Use 'kotel.jpg' or any image you upload -->
                 <img src="kotel.jpg" alt="Shul Image" class="shul-image" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Jerusalem_Symbol.svg/600px-Jerusalem_Symbol.svg.png'">
             </div>
         </div>
 
-        <!-- CENTER SECTION: SHABBAT DAY -->
-        <div class="centered-section">
-            <div class="centered-header">שבת קודש</div>
+        <!-- BOTTOM SECTION (All Right Aligned now) -->
+        <div class="bottom-section">
+            <div class="section-header">שבת קודש</div>
             
-            <div class="center-row">
+            <div class="time-row">
                 <span class="time">7:45</span>
                 <span class="desc">שחרית ומוסף</span>
             </div>
             
-            <div class="center-row">
+            <div class="time-row">
                 <span class="time">9:15</span>
                 <span class="desc">תפילת ילדים</span>
             </div>
@@ -337,21 +255,19 @@
             </div>
         </div>
 
-        <!-- CENTER SECTION: AFTERNOON -->
-        <div class="centered-section">
-            <!-- No Header for this section in PDF, just spacing -->
+        <div class="bottom-section">
             <br> 
-            <div class="center-row">
+            <div class="time-row">
                 <span class="time">15:00</span>
                 <span class="desc">לימוד בספר "אורות"</span>
             </div>
             
-            <div class="center-row">
+            <div class="time-row">
                 <span class="time">15:45</span>
                 <span class="desc">מנחה של שבת</span>
             </div>
 
-            <div class="center-row">
+            <div class="time-row">
                 <span class="time" id="arvit-motzash">--:--</span>
                 <span class="desc">ערבית של מוצאי שבת</span>
             </div>
@@ -361,14 +277,14 @@
             שבת שלום!
         </div>
 
-        <!-- WAZE LINK (Hidden in Print) -->
+        <!-- WAZE -->
         <div class="waze-link" style="text-align:center; margin-top:20px;">
-            <a href="https://ul.waze.com/ul?ll=31.72202552%2C35.23175955&navigate=yes&zoom=17" class="btn btn-outline" style="display:inline-flex; justify-content:center;">
+            <a href="https://ul.waze.com/ul?ll=31.72202552%2C35.23175955&navigate=yes&zoom=17" class="btn btn-outline" style="display:inline-flex; justify-content:center; width: fit-content; margin: 0 auto; background:none; border: 1px solid var(--primary); color: var(--primary);">
                 🚗 נווט לבית הכנסת
             </a>
         </div>
 
-        <!-- DVAR TORAH (Collapsible, Web Only) -->
+        <!-- DVAR TORAH -->
         <div class="dvar-torah-container">
             <button class="dt-btn" onclick="toggleDt()">
                 <span>📚 דבר תורה לשבת</span>
@@ -380,11 +296,17 @@
             </div>
         </div>
 
+        <!-- CONTROLS (Moved to Bottom) -->
+        <div class="controls">
+            <button onclick="window.print()" class="btn">
+                🖨️ הדפס / שמור כ-PDF
+            </button>
+        </div>
+
     </div>
 </div>
 
 <script>
-    // --- 1. SAFETY LOADER ---
     setTimeout(() => {
         const loader = document.getElementById('loader');
         if (loader && loader.style.display !== 'none') {
@@ -393,7 +315,6 @@
         }
     }, 4000);
 
-    // --- 2. COLLAPSIBLE DT ---
     function toggleDt() {
         const content = document.getElementById('dt-content');
         const icon = document.getElementById('dt-icon');
@@ -406,19 +327,16 @@
         }
     }
 
-    // --- 3. FETCH DATA ---
     async function fetchShabbatTimes() {
         try {
             const response = await fetch('data.json?t=' + new Date().getTime());
             if (!response.ok) throw new Error("Data file not found");
             const data = await response.json();
 
-            // Texts
             setText('parsha-name', "שבת קודש פרשת " + (data.parsha || "השבוע"));
             setText('candle-lighting', data.candles);
             setText('havdalah', data.havdalah);
             
-            // Mevarchim
             const mevDiv = document.getElementById('mevarchim-text');
             if (data.description) {
                 mevDiv.innerText = data.description;
@@ -427,7 +345,6 @@
                 mevDiv.style.display = 'none';
             }
 
-            // Dvar Torah
             if (data.dvar_torah) {
                 setText('dvar-torah-text', data.dvar_torah);
                 if (data.dvar_source) setText('dvar-torah-source', data.dvar_source);
@@ -435,11 +352,9 @@
                 document.querySelector('.dvar-torah-container').style.display = 'none';
             }
 
-            // Calculations
             setText('mincha-erev', calculateMincha(data.candles));
             setText('arvit-motzash', calculateArvit(data.havdalah));
 
-            // Show
             document.getElementById('loader').style.display = 'none';
             document.getElementById('content').classList.remove('hidden');
 
