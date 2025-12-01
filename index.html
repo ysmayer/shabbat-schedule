@@ -6,13 +6,15 @@
     <title>לוח שבת - קהילת אורות ישראל</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&family=Frank+Ruhl+Libre:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&family=Frank+Ruhl+Libre:wght@500;700&display=swap" rel="stylesheet">
 
     <style>
         :root { 
             --primary: #1a3b80; 
-            --text: #000000;
-            --bg-web: #f4f6f9;
+            --accent: #4a90e2;
+            --text: #333;
+            --bg-web: #f0f2f5;
+            --card-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
 
         body { 
@@ -20,271 +22,432 @@
             margin: 0; padding: 0; 
             background-color: var(--bg-web);
             color: var(--text);
+            line-height: 1.6;
         }
 
-        /* --- WEB CONTAINER --- */
+        /* =========================================
+           🖥️ WEB / APP STYLES (Modern Look)
+           ========================================= */
+        
         .web-container {
-            max-width: 600px;
-            margin: 20px auto;
-            background: white;
-            padding: 40px; /* Increased padding */
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            min-height: 800px;
-            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            padding-bottom: 100px; /* Space for bottom button */
         }
 
-        /* --- HEADER --- */
+        /* Header Card */
+        .header-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 20px;
+            text-align: center;
+            border-top: 5px solid var(--primary);
+        }
+
         .header-row {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #eee; 
-            padding-bottom: 10px;
+            align-items: center;
+            margin-bottom: 15px;
         }
         
-        .bsd { font-family: 'Frank Ruhl Libre', serif; font-size: 14px; }
-        .logo-img { height: 70px; object-fit: contain; }
+        .bsd { font-size: 14px; color: #888; }
+        .logo-img { height: 60px; object-fit: contain; }
 
         .main-title {
-            text-align: center;
             color: var(--primary);
-            font-family: 'Rubik', sans-serif;
+            font-size: 1.8rem;
             font-weight: 700;
-            font-size: 26px;
-            margin: 10px 0 5px 0;
+            margin: 0;
         }
-        
         .sub-title {
-            text-align: center;
-            font-weight: 700;
-            font-size: 18px;
-            /* INCREASED SPACING HERE */
-            margin-bottom: 60px; 
-            min-height: 20px;
+            color: #666;
+            font-weight: 500;
+            margin-top: 5px;
+            font-size: 1.1rem;
         }
 
-        /* --- GRID LAYOUT (Top Section) --- */
+        /* Grid Layout (Your Request) */
         .top-section-grid {
-            display: grid;
-            grid-template-columns: 1fr; /* Mobile: Stacked */
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .times-column {
-            text-align: right;
-        }
-
-        .image-column {
             display: flex;
-            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+            /* Responsive: Wrap on small phones */
+            flex-wrap: wrap; 
             align-items: center;
         }
 
+        /* On Web: Image is responsive card */
+        .image-column {
+            flex: 1 1 300px; /* Grow, Shrink, Base width */
+        }
         .shul-image {
             width: 100%;
-            max-width: 300px;
-            height: auto;
-            border-radius: 4px;
-            border: 1px solid #ccc;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s;
+        }
+        .shul-image:hover { transform: scale(1.02); }
+
+        /* Times Section (Card Style) */
+        .times-column {
+            flex: 1 1 300px;
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
         }
 
-        /* --- TIME ROWS (Global Styles) --- */
+        /* Time Rows */
         .time-row {
             display: flex;
-            gap: 15px;
-            margin-bottom: 12px; /* A bit more space between rows */
-            font-size: 18px;
-            align-items: baseline;
-            justify-content: flex-start; /* ALIGN RIGHT (in RTL) */
+            justify-content: space-between; /* Web: Space out */
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
         }
-        .time { font-weight: 700; min-width: 55px; }
-        .desc { font-weight: 400; }
+        .time-row:last-child { border-bottom: none; }
+        
+        .time { 
+            font-weight: 700; 
+            font-size: 1.2rem; 
+            color: var(--primary);
+            background: #eef4ff;
+            padding: 2px 10px;
+            border-radius: 8px;
+        }
+        .desc { font-weight: 500; color: #444; }
 
         .section-header {
-            color: var(--primary);
+            color: var(--accent);
             font-weight: 700;
-            font-size: 18px;
-            margin-top: 35px;
-            margin-bottom: 15px;
-            text-align: right;
+            font-size: 1rem;
+            margin: 15px 0 10px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        /* --- BOTTOM SECTION (Now Right Aligned) --- */
-        .bottom-section {
-            text-align: right; /* Changed from Center to Right */
-            margin-top: 30px;
+        /* Shabbat Day Card */
+        .shabbat-day-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            padding: 25px;
+            margin-top: 20px;
+        }
+
+        .center-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px dashed #eee;
         }
 
         .note-text {
-            margin-top: 10px;
-            font-size: 16px;
-            text-align: right; /* Align note to right */
-            margin-right: 70px; /* Indent slightly to align with text not time */
-        }
-
-        .footer-shabbat {
+            background: #fff8e1;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.95rem;
+            color: #795548;
             text-align: center;
-            font-size: 24px;
-            font-weight: 700;
-            margin-top: 60px;
-            margin-bottom: 20px;
+            border-right: 4px solid #ffc107;
         }
 
-        /* --- CONTROLS (Moved to Bottom) --- */
-        .controls { 
-            display: flex; justify-content: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee;
+        /* Dvar Torah Button (Modern) */
+        .dvar-torah-container {
+            margin-top: 20px;
         }
-        .btn {
-            background: var(--primary); color: white; border: none; padding: 12px 25px;
-            border-radius: 25px; cursor: pointer; font-family: 'Rubik', sans-serif;
-            text-decoration: none; font-size: 16px; display: flex; align-items: center; gap: 8px;
+        .dt-btn {
+            width: 100%;
+            background: white;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
         }
-        .btn:hover { opacity: 0.9; }
+        .dt-btn:hover { background: var(--primary); color: white; }
+        .dt-content {
+            background: white;
+            margin-top: 10px;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            display: none;
+        }
 
-        /* --- DVAR TORAH --- */
-        .dvar-torah-container { margin-top: 30px; border-top: 1px solid #eee; padding-top: 10px; }
-        .dt-btn { width: 100%; text-align: right; background: none; border: none; font-size: 16px; font-weight: bold; color: var(--primary); cursor: pointer; display: flex; justify-content: space-between; }
-        .dt-content { display: none; padding: 10px; background: #f9f9f9; font-size: 14px; line-height: 1.5; }
+        /* Waze Button */
+        .waze-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: #33ccff; /* Waze Blue */
+            color: white;
+            text-decoration: none;
+            padding: 12px;
+            border-radius: 50px;
+            font-weight: bold;
+            margin: 20px auto;
+            max-width: 250px;
+            box-shadow: 0 4px 10px rgba(51, 204, 255, 0.3);
+            transition: transform 0.2s;
+        }
+        .waze-btn:hover { transform: translateY(-2px); }
+
+        /* Floating Print Button */
+        .floating-print {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-weight: bold;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            border: none;
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 50px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .hidden { display: none; }
 
         /* ==========================================================================
-           🖨️ PRINT STYLES
+           🖨️ PRINT STYLES (PDF REPLICA)
            ========================================================================== */
         @media print {
-            @page { size: A4 portrait; margin: 1cm; }
+            @page { size: A4 portrait; margin: 0.8cm; }
             
-            body { background: white; -webkit-print-color-adjust: exact; }
-
-            .web-container { box-shadow: none; margin: 0; padding: 0; max-width: 100%; border: none; }
-            .controls, .loader, .dvar-torah-container, .waze-link { display: none !important; }
-
-            /* Header */
-            .header-row { border-bottom: none; margin-bottom: 0; justify-content: space-between; }
-            .logo-img { height: 70px; }
-            .main-title { font-size: 28px; margin-top: 10px; color: #1a3b80 !important; }
-            .sub-title { font-size: 18px; margin-bottom: 60px; } /* Big space in print too */
-
-            /* Grid Layout */
-            .top-section-grid {
-                display: grid;
-                grid-template-columns: 1fr 280px; /* Text Right, Image Left */
-                gap: 40px;
-                align-items: start;
+            body { 
+                background: white; 
+                color: black;
+                font-family: 'Rubik', sans-serif;
+                -webkit-print-color-adjust: exact;
             }
 
-            /* Image */
-            .shul-image { width: 100%; border: 1px solid #ccc; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
+            .web-container { 
+                max-width: 100%; 
+                margin: 0; 
+                padding: 0; 
+                box-shadow: none; 
+            }
 
-            /* Alignments */
-            .times-column, .bottom-section, .section-header { text-align: right; }
-            .time-row { justify-content: flex-start; } /* Force Right Align */
+            /* Hide Web Elements */
+            .floating-print, .loader, .dvar-torah-container, .waze-link, .waze-btn { 
+                display: none !important; 
+            }
+
+            /* Reset Header Styles */
+            .header-card { box-shadow: none; border: none; padding: 0; margin-bottom: 20px; text-align: center; }
+            .header-row { margin-bottom: 0; }
+            .logo-img { height: 80px; } /* Bigger logo in print */
             
-            .section-header { color: #1a3b80 !important; margin-top: 30px; }
-            .footer-shabbat { margin-top: 80px; }
-            .note-text { margin-right: 70px; }
+            .main-title { font-size: 28px; margin-top: 10px; color: #1a3b80 !important; }
+            .sub-title { font-size: 18px; margin-bottom: 40px; color: black; }
+
+            /* --- THE REQUESTED TOP SECTION GRID --- */
+            .top-section-grid {
+                display: flex;
+                gap: 20px;
+                margin: 30px 0;
+                /* In print (LTR page logic but RTL text), we want image Left, Text Right. */
+                flex-direction: row-reverse; 
+                align-items: flex-start;
+            }
+
+            /* Reset Cards to Plain Text */
+            .times-column {
+                flex: 1; /* Take remaining space */
+                background: none; 
+                padding: 0; 
+                box-shadow: none; 
+                border-radius: 0;
+                text-align: right;
+            }
+
+            .image-column {
+                width: 35%; /* Fixed width for image column */
+                flex: none; /* Don't grow */
+            }
+
+            .shul-image {
+                height: 200px;
+                width: 100%;
+                border: 1px solid #ccc;
+                box-shadow: none;
+                border-radius: 4px;
+            }
+
+            /* Print Typography & Spacing */
+            .time-row {
+                border-bottom: none;
+                justify-content: flex-start; /* Align Right */
+                padding: 2px 0;
+                gap: 15px;
+            }
+            .time { 
+                background: none; 
+                color: black !important; 
+                font-size: 18px; 
+                padding: 0;
+            }
+            .desc { font-size: 18px; font-weight: normal; }
+            
+            .section-header {
+                color: #1a3b80 !important;
+                font-size: 18px;
+                margin-top: 30px;
+                margin-bottom: 10px;
+                text-align: right;
+            }
+
+            /* Shabbat Day Section (Reset Card) */
+            .shabbat-day-card {
+                background: none;
+                box-shadow: none;
+                padding: 0;
+                margin-top: 40px;
+                text-align: right; /* Align Right as requested */
+            }
+            
+            .center-row {
+                border-bottom: none;
+                justify-content: flex-start; /* Align Right */
+                padding: 2px 0;
+                gap: 15px;
+            }
+            
+            .note-text {
+                background: none;
+                border: none;
+                padding: 0;
+                margin-top: 10px;
+                color: black;
+                text-align: right;
+                font-style: italic;
+                padding-right: 60px; /* Indent slightly */
+            }
+
+            .footer-shabbat {
+                text-align: center;
+                font-size: 28px;
+                font-weight: 700;
+                margin-top: 60px;
+            }
         }
     </style>
 </head>
 <body>
 
+<!-- WEB VIEW: Main Container -->
 <div class="web-container">
     <div id="loader" class="loader"></div>
 
     <div id="content" class="hidden">
         
-        <!-- HEADER -->
-        <div class="header-row">
-            <div class="bsd">בס"ד</div>
-            <div class="logo-area">
-                <img src="logo.jpg" alt="Logo" class="logo-img" onerror="this.style.display='none'">
+        <!-- Header -->
+        <div class="header-card">
+            <div class="header-row">
+                <div class="bsd">בס"ד</div>
+                <div class="logo-area">
+                    <img src="logo.jpg" alt="Logo" class="logo-img" onerror="this.style.display='none'">
+                </div>
             </div>
+            <div class="main-title" id="parsha-name">שבת קודש...</div>
+            <div class="sub-title" id="mevarchim-text"></div>
         </div>
 
-        <div class="main-title" id="parsha-name">שבת קודש פרשת...</div>
-        <div class="sub-title" id="mevarchim-text"></div>
-
-        <!-- TOP SECTION GRID -->
+        <!-- TOP SECTION: Flex Grid -->
         <div class="top-section-grid">
             
-            <!-- RIGHT COLUMN: Times -->
+            <!-- 1. Text Column -->
             <div class="times-column">
                 <div class="time-row">
-                    <span class="time" id="candle-lighting">--:--</span>
                     <span class="desc">הדלקת נרות שבת</span>
+                    <span class="time" id="candle-lighting">--:--</span>
                 </div>
                 <div class="time-row">
-                    <span class="time" id="havdalah">--:--</span>
                     <span class="desc">צאת השבת</span>
+                    <span class="time" id="havdalah">--:--</span>
                 </div>
 
                 <div class="section-header">ערב שבת</div>
                 <div class="time-row">
-                    <span class="time" id="mincha-erev">--:--</span>
                     <span class="desc">מנחה, קבלת שבת וערבית</span>
+                    <span class="time" id="mincha-erev">--:--</span>
                 </div>
             </div>
 
-            <!-- LEFT COLUMN: Image -->
+            <!-- 2. Image Column -->
             <div class="image-column">
                 <img src="kotel.jpg" alt="Shul Image" class="shul-image" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Jerusalem_Symbol.svg/600px-Jerusalem_Symbol.svg.png'">
             </div>
         </div>
 
-        <!-- BOTTOM SECTION (All Right Aligned now) -->
-        <div class="bottom-section">
-            <div class="section-header">שבת קודש</div>
+        <!-- SHABBAT DAY CARD -->
+        <div class="shabbat-day-card">
+            <div class="section-header" style="text-align:center; margin-bottom:20px;">שבת קודש</div>
             
-            <div class="time-row">
-                <span class="time">7:45</span>
+            <div class="center-row">
                 <span class="desc">שחרית ומוסף</span>
+                <span class="time">7:45</span>
             </div>
             
-            <div class="time-row">
-                <span class="time">9:15</span>
+            <div class="center-row">
                 <span class="desc">תפילת ילדים</span>
+                <span class="time">9:15</span>
             </div>
 
             <div class="note-text">
                 שיעור מאת הרב נתנאל בהלכות שבת לאחר התפילה
             </div>
-        </div>
+            
+            <br>
 
-        <div class="bottom-section">
-            <br> 
-            <div class="time-row">
-                <span class="time">15:00</span>
+            <div class="section-header" style="text-align:center;">אחר הצהריים</div>
+
+            <div class="center-row">
                 <span class="desc">לימוד בספר "אורות"</span>
+                <span class="time">15:00</span>
             </div>
             
-            <div class="time-row">
-                <span class="time">15:45</span>
+            <div class="center-row">
                 <span class="desc">מנחה של שבת</span>
+                <span class="time">15:45</span>
             </div>
 
-            <div class="time-row">
-                <span class="time" id="arvit-motzash">--:--</span>
+            <div class="center-row">
                 <span class="desc">ערבית של מוצאי שבת</span>
+                <span class="time" id="arvit-motzash">--:--</span>
             </div>
         </div>
+        
+        <!-- WEB ONLY: Waze -->
+        <a href="https://ul.waze.com/ul?ll=31.72202552%2C35.23175955&navigate=yes&zoom=17" class="waze-btn">
+            🚗 נווט לבית הכנסת
+        </a>
 
-        <div class="footer-shabbat">
-            שבת שלום!
-        </div>
-
-        <!-- WAZE -->
-        <div class="waze-link" style="text-align:center; margin-top:20px;">
-            <a href="https://ul.waze.com/ul?ll=31.72202552%2C35.23175955&navigate=yes&zoom=17" class="btn btn-outline" style="display:inline-flex; justify-content:center; width: fit-content; margin: 0 auto; background:none; border: 1px solid var(--primary); color: var(--primary);">
-                🚗 נווט לבית הכנסת
-            </a>
-        </div>
-
-        <!-- DVAR TORAH -->
+        <!-- WEB ONLY: Dvar Torah -->
         <div class="dvar-torah-container">
             <button class="dt-btn" onclick="toggleDt()">
                 <span>📚 דבר תורה לשבת</span>
@@ -292,19 +455,21 @@
             </button>
             <div id="dt-content" class="dt-content">
                 <div id="dvar-torah-text"></div>
-                <div id="dvar-torah-source" style="margin-top:5px; font-weight:bold; color:#666;"></div>
+                <div id="dvar-torah-source" style="margin-top:10px; font-weight:bold; color:#666; font-size:0.9rem;"></div>
             </div>
         </div>
-
-        <!-- CONTROLS (Moved to Bottom) -->
-        <div class="controls">
-            <button onclick="window.print()" class="btn">
-                🖨️ הדפס / שמור כ-PDF
-            </button>
+        
+        <div class="footer-shabbat" style="text-align:center; margin-top:30px; font-weight:bold; font-size:1.5rem; display:none; display:block in print;">
+            שבת שלום!
         </div>
 
     </div>
 </div>
+
+<!-- Floating Print Button -->
+<button onclick="window.print()" class="floating-print">
+    🖨️ הדפס / PDF
+</button>
 
 <script>
     setTimeout(() => {
