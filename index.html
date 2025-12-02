@@ -144,14 +144,17 @@
             margin-top: 20px;
         }
 
-        /* Center Rows (for Web) */
+        /* Center Rows (NOW RIGHT ALIGNED FOR WEB TOO) */
         .center-row {
             display: flex;
-            justify-content: center; /* Centered on Web */
+            justify-content: flex-start; /* Right in RTL */
             gap: 15px;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
             align-items: center;
+            border-bottom: 1px dashed #eee;
+            padding-bottom: 10px;
         }
+        .center-row:last-child { border-bottom: none; }
 
         .note-text {
             background: #fff8e1;
@@ -160,7 +163,7 @@
             margin-top: 15px;
             font-size: 0.95rem;
             color: #795548;
-            text-align: center;
+            text-align: right;
             border-right: 4px solid #ffc107;
         }
 
@@ -190,7 +193,7 @@
         .hidden { display: none; }
 
         /* ==========================================================================
-           🖨️ PRINT STYLES (PDF Replica)
+           🖨️ PRINT STYLES (PDF Replica - Right Aligned)
            ========================================================================== */
         @media print {
             @page { size: A4 portrait; margin: 1cm; }
@@ -254,28 +257,19 @@
                 text-decoration: none; font-weight: bold;
             }
 
-            /* Shabbat Day Section - FIXED TO RIGHT ALIGN */
+            /* Shabbat Day Section */
             .shabbat-day-card {
-                background: none; 
-                box-shadow: none; 
-                padding: 0; 
-                margin-top: 40px; 
-                text-align: right; /* Changed from Center to Right */
+                background: none; box-shadow: none; padding: 0; margin-top: 40px; text-align: right;
             }
             
-            /* Bottom Rows - FIXED TO RIGHT ALIGN */
+            /* Center Alignment for Bottom Part */
             .center-row {
-                display: flex; 
-                justify-content: flex-start; /* Right in RTL */
-                gap: 15px; 
-                margin-bottom: 5px;
+                display: flex; justify-content: flex-start; gap: 15px; margin-bottom: 5px; border-bottom: none; padding: 2px 0;
             }
             
             .note-text {
                 background: none; border: none; padding: 0; margin-top: 10px; 
-                color: black; 
-                text-align: right; /* Changed from Center to Right */
-                font-style: italic;
+                color: black; text-align: right; font-style: italic;
             }
 
             .footer-shabbat {
