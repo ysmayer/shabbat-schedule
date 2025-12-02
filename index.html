@@ -181,7 +181,7 @@
         .hidden { display: none; }
 
         /* ==========================================================================
-           🖨️ PRINT STYLES (PDF Replica)
+           🖨️ PRINT STYLES
            ========================================================================== */
         @media print {
             @page { size: A4 portrait; margin: 1cm; }
@@ -191,6 +191,7 @@
                 color: black;
                 font-family: 'Rubik', sans-serif;
                 -webkit-print-color-adjust: exact;
+                direction: rtl; /* Ensure global Right-to-Left */
             }
 
             .web-container { max-width: 100%; margin: 0; padding: 0; box-shadow: none; }
@@ -203,40 +204,41 @@
             .main-title { font-size: 28px; margin-top: 10px; color: #1a3b80 !important; }
             .sub-title { font-size: 18px; margin-bottom: 40px; color: black; }
 
-            /* Grid: Text Right, Image Left */
+            /* Grid: Text Right, Image Left (Natural RTL) */
             .top-section-grid {
                 display: grid;
-                grid-template-columns: 1fr 35%; /* Text gets more space, Image gets 35% */
+                grid-template-columns: 1fr 35%; /* Text Column (Right), Image Column (Left) */
                 gap: 40px;
                 margin: 30px 0;
             }
 
             .times-column {
-                order: 1; /* Text on Right */
                 background: none; padding: 0; box-shadow: none; border-radius: 0;
+                text-align: right;
             }
 
             .image-column {
-                order: 2; /* Image on Left */
+                /* In RTL Grid: Column 2 is on the Left */
+                display: block;
             }
 
             .shul-image {
                 height: 200px; width: 100%; border: 1px solid #ccc; box-shadow: none; border-radius: 4px;
             }
 
-            /* Time Rows in Print: [Time] [Text] */
+            /* Time Rows in Print */
             .time-row {
                 border-bottom: none;
                 padding: 4px 0;
-                justify-content: flex-start; /* Align Right */
+                justify-content: flex-start; /* Align Right in RTL */
             }
             
-            /* Clean Text Styling */
+            /* Typography */
             .time { 
                 background: none; color: black !important; font-size: 18px; padding: 0;
-                min-width: 60px; text-align: right; margin-left: 15px;
+                min-width: 60px; text-align: right; margin-left: 15px; font-weight: 800;
             }
-            .desc { font-size: 18px; font-weight: normal; color: black; }
+            .desc { font-size: 18px; font-weight: normal; color: black; text-align: right; }
             
             .section-header {
                 color: #1a3b80 !important; font-size: 18px; 
@@ -249,11 +251,11 @@
                 background: none; box-shadow: none; padding: 0; margin-top: 40px; text-align: center;
             }
             
+            /* Center Alignment for Bottom Part */
             .center-row {
                 display: flex; justify-content: center; gap: 15px; margin-bottom: 5px;
             }
             
-            /* Note Text Clean */
             .note-text {
                 background: none; border: none; padding: 0; margin-top: 10px; 
                 color: black; text-align: center; font-style: italic;
@@ -267,7 +269,7 @@
 </head>
 <body>
 
-<!-- Main Container -->
+<!-- WEB VIEW: Main Container -->
 <div class="web-container">
     <div id="loader" class="loader"></div>
 
@@ -288,7 +290,7 @@
         <!-- TOP SECTION: Grid -->
         <div class="top-section-grid">
             
-            <!-- Times Column -->
+            <!-- 1. Text Column -->
             <div class="times-column">
                 <div class="time-row">
                     <span class="time" id="candle-lighting">--:--</span>
@@ -306,13 +308,13 @@
                 </div>
             </div>
 
-            <!-- Image Column -->
+            <!-- 2. Image Column -->
             <div class="image-column">
                 <img src="kotel.jpg" alt="Shul Image" class="shul-image" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Jerusalem_Symbol.svg/600px-Jerusalem_Symbol.svg.png'">
             </div>
         </div>
 
-        <!-- SHABBAT DAY -->
+        <!-- SHABBAT DAY CARD -->
         <div class="shabbat-day-card">
             <div class="section-header" style="text-align:center; margin-bottom:20px;">שבת קודש</div>
             
@@ -332,8 +334,6 @@
             
             <br>
 
-            <!-- Removed "Afternoon" Title as requested, just spacing -->
-            
             <div class="center-row">
                 <span class="time">15:00</span>
                 <span class="desc" style="flex:none;">לימוד בספר "אורות"</span>
@@ -354,7 +354,7 @@
             שבת שלום!
         </div>
 
-        <!-- Dvar Torah (Collapsible) -->
+        <!-- WEB ONLY: Dvar Torah -->
         <div class="dvar-torah-container">
             <button class="dt-btn" onclick="toggleDt()">
                 <span>📚 דבר תורה לשבת</span>
@@ -401,7 +401,6 @@
             if (!response.ok) throw new Error("Data file not found");
             const data = await response.json();
 
-            // Set Text
             document.getElementById('parsha-name').innerText = "שבת קודש פרשת " + (data.parsha || "השבוע");
             document.getElementById('candle-lighting').innerText = data.candles;
             document.getElementById('havdalah').innerText = data.havdalah;
