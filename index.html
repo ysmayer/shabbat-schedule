@@ -144,6 +144,15 @@
             margin-top: 20px;
         }
 
+        /* Center Rows (for Web) */
+        .center-row {
+            display: flex;
+            justify-content: center; /* Centered on Web */
+            gap: 15px;
+            margin-bottom: 5px;
+            align-items: center;
+        }
+
         .note-text {
             background: #fff8e1;
             padding: 12px;
@@ -181,7 +190,7 @@
         .hidden { display: none; }
 
         /* ==========================================================================
-           🖨️ PRINT STYLES
+           🖨️ PRINT STYLES (PDF Replica)
            ========================================================================== */
         @media print {
             @page { size: A4 portrait; margin: 1cm; }
@@ -191,7 +200,6 @@
                 color: black;
                 font-family: 'Rubik', sans-serif;
                 -webkit-print-color-adjust: exact;
-                direction: rtl; /* Ensure global Right-to-Left */
             }
 
             .web-container { max-width: 100%; margin: 0; padding: 0; box-shadow: none; }
@@ -204,7 +212,7 @@
             .main-title { font-size: 28px; margin-top: 10px; color: #1a3b80 !important; }
             .sub-title { font-size: 18px; margin-bottom: 40px; color: black; }
 
-            /* Grid: Text Right, Image Left (Natural RTL) */
+            /* Grid: Text Right, Image Left */
             .top-section-grid {
                 display: grid;
                 grid-template-columns: 1fr 35%; /* Text Column (Right), Image Column (Left) */
@@ -246,19 +254,28 @@
                 text-decoration: none; font-weight: bold;
             }
 
-            /* Shabbat Day Section */
+            /* Shabbat Day Section - FIXED TO RIGHT ALIGN */
             .shabbat-day-card {
-                background: none; box-shadow: none; padding: 0; margin-top: 40px; text-align: center;
+                background: none; 
+                box-shadow: none; 
+                padding: 0; 
+                margin-top: 40px; 
+                text-align: right; /* Changed from Center to Right */
             }
             
-            /* Center Alignment for Bottom Part */
+            /* Bottom Rows - FIXED TO RIGHT ALIGN */
             .center-row {
-                display: flex; justify-content: center; gap: 15px; margin-bottom: 5px;
+                display: flex; 
+                justify-content: flex-start; /* Right in RTL */
+                gap: 15px; 
+                margin-bottom: 5px;
             }
             
             .note-text {
                 background: none; border: none; padding: 0; margin-top: 10px; 
-                color: black; text-align: center; font-style: italic;
+                color: black; 
+                text-align: right; /* Changed from Center to Right */
+                font-style: italic;
             }
 
             .footer-shabbat {
@@ -316,7 +333,7 @@
 
         <!-- SHABBAT DAY CARD -->
         <div class="shabbat-day-card">
-            <div class="section-header" style="text-align:center; margin-bottom:20px;">שבת קודש</div>
+            <div class="section-header" style="margin-bottom:20px;">שבת קודש</div>
             
             <div class="center-row">
                 <span class="time">7:45</span>
