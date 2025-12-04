@@ -28,58 +28,56 @@
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-            padding-bottom: 80px; /* Space for sticky button */
+            padding-bottom: 40px;
         }
 
         /* =========================================
            📐 CSS GRID LAYOUT ENGINE
            ========================================= */
         
-        /* The Grid Container */
         .layout-grid {
             display: grid;
             gap: 20px;
-            /* MOBILE DEFAULT: Single Column */
             grid-template-columns: 1fr;
-            /* MOBILE ORDER: Header -> Top Times -> Day Times -> Dvar Torah -> Footer -> IMAGE (At Bottom) */
+            /* MOBILE ORDER */
             grid-template-areas: 
                 "header"
                 "top-times"
                 "day-times"
                 "dt"
                 "footer"
-                "image"; 
+                "image"
+                "print-btn"; /* Added print button to grid */
         }
 
-        /* DESKTOP LAYOUT (Side by Side) */
+        /* DESKTOP LAYOUT */
         @media (min-width: 768px) {
             .layout-grid {
-                /* Two Columns: Text (Right), Image (Left) */
                 grid-template-columns: 1fr 300px;
                 grid-template-areas: 
                     "header header"
                     "top-times image"
                     "day-times day-times"
                     "dt dt"
-                    "footer footer";
+                    "footer footer"
+                    "print-btn print-btn";
                 align-items: start;
             }
         }
 
-        /* ASSIGN GRID AREAS */
         .area-header { grid-area: header; }
         .area-top-times { grid-area: top-times; }
         .area-image { grid-area: image; }
         .area-day-times { grid-area: day-times; }
         .area-dt { grid-area: dt; }
         .area-footer { grid-area: footer; }
+        .area-print { grid-area: print-btn; } /* Grid area for button */
 
 
         /* =========================================
            🎨 CARD STYLES
            ========================================= */
 
-        /* Header */
         .header-card {
             background: white;
             border-radius: 16px;
@@ -112,7 +110,6 @@
             font-size: 1.1rem;
         }
 
-        /* Top Times Card */
         .times-card {
             background: white;
             padding: 20px;
@@ -120,7 +117,6 @@
             box-shadow: var(--card-shadow);
         }
 
-        /* Image Card */
         .shul-image {
             width: 100%;
             height: 250px;
@@ -130,7 +126,6 @@
             display: block;
         }
 
-        /* Shabbat Day Card */
         .shabbat-day-card {
             background: white;
             border-radius: 16px;
@@ -138,7 +133,6 @@
             padding: 25px;
         }
 
-        /* --- TIME ROWS --- */
         .time-row {
             display: flex;
             align-items: center;
@@ -168,7 +162,6 @@
             text-decoration: underline;
         }
 
-        /* Center Rows (Right Aligned per request) */
         .center-row {
             display: flex;
             justify-content: flex-start; 
@@ -191,7 +184,6 @@
             border-right: 4px solid #ffc107;
         }
 
-        /* Dvar Torah */
         .dvar-torah-container { margin-top: 0; }
         .dt-btn {
             width: 100%; background: white; border: 2px solid var(--primary);
@@ -204,25 +196,24 @@
             border-radius: 12px; box-shadow: var(--card-shadow); display: none;
         }
 
-        /* Sticky Print Button */
-        .floating-print {
-            position: fixed; 
-            bottom: 20px; 
-            left: 50%; 
-            transform: translateX(-50%);
+        /* --- STATIC PRINT BUTTON (Not Sticky) --- */
+        .static-print-btn {
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 20px auto 0 auto; /* Center horizontally */
             background: #333; 
             color: white; 
-            padding: 12px 30px;
+            padding: 15px 30px;
             border-radius: 30px; 
             font-weight: bold; 
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             border: none; 
             cursor: pointer; 
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            text-align: center;
+            transition: background 0.2s;
         }
+        .static-print-btn:hover { background: #555; }
 
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 50px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -243,43 +234,38 @@
             }
 
             .web-container { max-width: 100%; margin: 0; padding: 0; box-shadow: none; }
-            .floating-print, .loader, .dvar-torah-container { display: none !important; }
+            .static-print-btn, .loader, .dvar-torah-container { display: none !important; }
 
-            /* Grid For Print (Matches PDF: Image Left, Times Right) */
             .layout-grid {
                 display: grid;
-                grid-template-columns: 1fr 35%; /* Text Right, Image Left */
+                grid-template-columns: 1fr 35%; 
                 grid-template-areas: 
                     "header header"
                     "top-times image"
-                    "day-times day-times" /* Day Times Span Full Width */
+                    "day-times day-times" 
                     "footer footer";
                 gap: 40px;
                 margin-top: 20px;
             }
 
-            /* Header */
             .header-card { box-shadow: none; border: none; padding: 0; margin-bottom: 20px; text-align: center; }
             .header-row { margin-bottom: 0; }
             .logo-img { height: 80px; }
             .main-title { font-size: 28px; margin-top: 10px; color: #1a3b80 !important; }
             .sub-title { font-size: 18px; margin-bottom: 40px; color: black; }
 
-            /* Cards Reset */
             .times-card, .shabbat-day-card {
                 background: none; padding: 0; box-shadow: none; border-radius: 0;
             }
 
-            /* Image */
             .shul-image {
                 height: 200px; width: 100%; border: 1px solid #ccc; box-shadow: none; border-radius: 4px;
             }
 
-            /* Time Rows in Print */
             .time-row, .center-row {
                 border-bottom: none;
                 padding: 4px 0;
-                justify-content: flex-start; /* Align Right */
+                justify-content: flex-start; 
             }
             
             .time { 
@@ -294,7 +280,6 @@
                 text-decoration: none; font-weight: bold;
             }
 
-            /* Spacing adjustments for Day Section */
             .shabbat-day-card { margin-top: 40px; text-align: right; }
             
             .note-text {
@@ -310,7 +295,6 @@
 </head>
 <body>
 
-<!-- WEB VIEW: Main Container -->
 <div class="web-container">
     <div id="loader" class="loader"></div>
 
@@ -346,7 +330,7 @@
             </div>
         </div>
 
-        <!-- 3. Image (Moved to Bottom Area on Mobile, Right Column on Desktop) -->
+        <!-- 3. Image -->
         <div class="area-image">
             <img src="kotel.jpg" alt="Shul Image" class="shul-image" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Jerusalem_Symbol.svg/600px-Jerusalem_Symbol.svg.png'">
         </div>
@@ -394,7 +378,7 @@
             </div>
         </div>
 
-        <!-- 6. Dvar Torah (Web Only) -->
+        <!-- 6. Dvar Torah -->
         <div class="dvar-torah-container area-dt">
             <button class="dt-btn" onclick="toggleDt()">
                 <span>📚 דבר תורה לשבת</span>
@@ -406,13 +390,15 @@
             </div>
         </div>
 
+        <!-- 7. Print Button (Standard) -->
+        <div class="area-print">
+            <button onclick="window.print()" class="static-print-btn">
+                🖨️ הדפס / שמור כ-PDF
+            </button>
+        </div>
+
     </div>
 </div>
-
-<!-- Floating Print Button (Sticky) -->
-<button onclick="window.print()" class="floating-print">
-    🖨️ הדפס / PDF
-</button>
 
 <script>
     setTimeout(() => {
