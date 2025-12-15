@@ -4,6 +4,7 @@ import requests
 import urllib.parse
 from datetime import date, timedelta
 from playwright.sync_api import sync_playwright
+from pyluach import dates
 
 # --- CONFIGURATION: Parsha to Book Mapping ---
 PARSHA_MAP = {
@@ -36,6 +37,12 @@ def get_next_friday_date():
     next_friday = today + timedelta(days=days_ahead)
     return next_friday.strftime("%Y-%m-%d")
 
+def get_next_shabbat_date_obj():
+    today = date.today()
+    days_ahead = (5 - today.weekday() + 7) % 7
+    if days_ahead == 0: days_ahead = 7
+    return today + timedelta(days=days_ahead)
+
 def get_friday_fmt_itin():
     d = date.today()
     days_ahead = (4 - d.weekday() + 7) % 7
@@ -55,11 +62,10 @@ def strip_html(text):
     if not isinstance(text, str): return ""
     clean = re.compile('<.*?>')
     text = re.sub(clean, '', text)
-    text = re.sub(r'\[\d+\]', '', text) # Remove [1]
+    text = re.sub(r'\[\d+\]', '', text)
     return text.strip()
 
 def flatten_text_list(data_he):
-    """Recursive function to get all text segments into a single flat list"""
     texts = []
     if isinstance(data_he, list):
         for item in data_he:
@@ -86,65 +92,69 @@ def fetch_sefaria_text(parsha_name):
             if resp.status_code == 200:
                 data = resp.json()
                 if 'he' in data and data['he']:
-                    # 1. Flatten all available comments into one list
                     all_segments = flatten_text_list(data['he'])
-                    
-                    print(f"Found {len(all_segments)} segments. Searching for the perfect length...")
-                    
                     best_segment = ""
                     min_len = 10000
-                    
-                    # 2. Search for a "Goldilocks" segment (150 < chars < 550)
                     for segment in all_segments:
                         clean = strip_html(segment)
                         length = len(clean)
-                        
-                        # Filter out garbage (too short)
                         if length < 100: continue 
-                        
-                        # Perfect size found? Return immediately.
                         if 150 < length < 550:
-                            print(f"✅ Found perfect short segment: {length} chars")
                             return clean
-                        
-                        # Keep track of the shortest valid one just in case
                         if length < min_len:
                             min_len = length
                             best_segment = clean
-                    
-                    # 3. Fallback: If no perfect size, return the shortest one found
-                    if best_segment:
-                         print(f"⚠️ No perfect size. Returning shortest found: {min_len} chars")
-                         return best_segment
-                    
-                    # 4. Absolute Fallback: Just take the first one and cut it
+                    if best_segment: return best_segment
                     return strip_html(all_segments[0])
-
         except Exception as e:
             print(f"❌ Error fetching {url}: {e}")
-    
     return None
+
+def load_manual_data():
+    try:
+        with open('manual_data.json', 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        print("⚠️ manual_data.json not found, using defaults.")
+        return {}
+    except Exception as e:
+        print(f"❌ Error reading manual_data.json: {e}")
+        return {}
 
 def scrape_times():
     friday_iso = get_next_friday_date()
     friday_itin = get_friday_fmt_itin()
+    manual_config = load_manual_data()
     
     data = {
         "parsha": "שבת שלום",
         "description": "", 
+        "molad": "", 
         "candles": "16:00",
         "havdalah": "17:00",
         "dvar_torah": "",
         "dvar_source": "",
+        "shiur_topic": manual_config.get("shiur_topic", ""), # Default empty
+        "kidush": manual_config.get("kidush", ""),           # New Field
+        "messages": manual_config.get("messages", ""), 
         "source": "Hybrid Data"
     }
 
     english_parsha = ""
     hebrew_parsha_name = ""
+    is_mevarchim = False
 
-    # 1. METADATA
+    # 1. METADATA & MEVARCHIM
     print("🤖 Step 1: Hebcal Metadata...")
     try:
+        shabbat_date = get_next_shabbat_date_obj()
+        heb_date = dates.HebrewDate.from_pydate(shabbat_date)
+        
+        if 23 <= heb_date.day <= 29:
+            is_mevarchim = True
+            data["description"] = "שבת מברכין"
+            print("🌙 Status: Mevarchim Detected")
+
         h_url = f"https://www.hebcal.com/shabbat?cfg=json&geonameid=281184&M=on&date={friday_iso}"
         h_data = requests.get(h_url).json()
         
@@ -153,39 +163,24 @@ def scrape_times():
             data["parsha"] = parsha_item['hebrew'].replace("פרשת", "").strip()
             hebrew_parsha_name = data["parsha"]
             english_parsha = parsha_item['title'].replace("Parashat ", "").strip()
-            print(f"📖 Parsha: {data['parsha']} ({english_parsha})")
-
-        mevarchim_item = next((x for x in h_data['items'] if x['category'] == 'mevarchim'), None)
-        if mevarchim_item:
-            data["description"] = mevarchim_item['hebrew']
-            print(f"🌙 Status: {data['description']}")
+            print(f"📖 Parsha: {data['parsha']}")
 
     except Exception as e:
-        print(f"❌ Hebcal Error: {e}")
+        print(f"❌ Metadata Error: {e}")
 
     # 2. SEFAT EMET
     if english_parsha:
-        print(f"📚 Step 2: Fetching Sefat Emet for {english_parsha}...")
+        print(f"📚 Step 2: Fetching Sefat Emet...")
         text = fetch_sefaria_text(english_parsha)
-        
         if text:
-            # Create a nice citation source
             data["dvar_source"] = f"מקור: שפת אמת, {hebrew_parsha_name}"
-            
-            # Safety limit
             limit = 600
             if len(text) > limit:
                 cut_index = text.rfind('.', 0, limit)
-                if cut_index > 100:
-                    data["dvar_torah"] = text[:cut_index+1] + "..."
-                else:
-                    data["dvar_torah"] = text[:limit] + "..."
+                data["dvar_torah"] = text[:cut_index+1] + "..." if cut_index > 100 else text[:limit] + "..."
             else:
                 data["dvar_torah"] = text
-            
             print("✅ Sefat Emet Found!")
-        else:
-            print("⚠️ Sefat Emet NOT found.")
 
     # 3. ITIM LABINA
     print("🌍 Step 3: Scraping Times...")
@@ -205,12 +200,17 @@ def scrape_times():
             clean_text = text_content.replace("\n", " ")
 
             candles_search = re.search(r'הדלקת נרות.*?(\d{1,2}:\d{2})', clean_text)
-            if candles_search:
-                data["candles"] = to_24h(candles_search.group(1))
+            if candles_search: data["candles"] = to_24h(candles_search.group(1))
 
             havdalah_search = re.search(r'צאת השבת.*?(\d{1,2}:\d{2})', clean_text)
-            if havdalah_search:
-                data["havdalah"] = to_24h(havdalah_search.group(1))
+            if havdalah_search: data["havdalah"] = to_24h(havdalah_search.group(1))
+
+            if is_mevarchim:
+                molad_match = re.search(r'(המולד.*?)(?:\.|\n|$)', text_content)
+                if molad_match:
+                    raw_molad = molad_match.group(1).strip()
+                    data["molad"] = re.sub(r'\s+', ' ', raw_molad)
+                    print(f"🌑 Molad: {data['molad']}")
 
         except Exception as e:
             print(f"❌ Scrape Error: {e}")

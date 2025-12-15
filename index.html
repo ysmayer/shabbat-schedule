@@ -31,31 +31,26 @@
             padding-bottom: 40px;
         }
 
-        /* =========================================
-           📐 CSS GRID LAYOUT ENGINE
-           ========================================= */
-        
+        /* GRID LAYOUT */
         .layout-grid {
-            display: grid;
-            gap: 20px;
-            grid-template-columns: 1fr;
-            /* MOBILE ORDER */
+            display: grid; gap: 20px; grid-template-columns: 1fr;
             grid-template-areas: 
                 "header"
+                "messages" 
                 "top-times"
                 "day-times"
                 "dt"
                 "footer"
                 "image"
-                "print-btn"; /* Added print button to grid */
+                "print-btn"; 
         }
 
-        /* DESKTOP LAYOUT */
         @media (min-width: 768px) {
             .layout-grid {
                 grid-template-columns: 1fr 300px;
                 grid-template-areas: 
                     "header header"
+                    "messages messages"
                     "top-times image"
                     "day-times day-times"
                     "dt dt"
@@ -66,230 +61,86 @@
         }
 
         .area-header { grid-area: header; }
+        .area-messages { grid-area: messages; }
         .area-top-times { grid-area: top-times; }
         .area-image { grid-area: image; }
         .area-day-times { grid-area: day-times; }
         .area-dt { grid-area: dt; }
         .area-footer { grid-area: footer; }
-        .area-print { grid-area: print-btn; } /* Grid area for button */
+        .area-print { grid-area: print-btn; }
 
-
-        /* =========================================
-           🎨 CARD STYLES
-           ========================================= */
-
+        /* STYLES */
         .header-card {
-            background: white;
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: var(--card-shadow);
-            text-align: center;
+            background: white; border-radius: 16px; padding: 20px;
+            box-shadow: var(--card-shadow); text-align: center;
             border-top: 5px solid var(--primary);
         }
-
-        .header-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         .bsd { font-size: 14px; color: #888; }
         .logo-img { height: 60px; object-fit: contain; }
-
-        .main-title {
-            color: var(--primary);
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin: 0;
-        }
-        .sub-title {
-            color: #666;
-            font-weight: 500;
-            margin-top: 5px;
-            font-size: 1.1rem;
-        }
-
-        .times-card {
-            background: white;
-            padding: 20px;
-            border-radius: 16px;
-            box-shadow: var(--card-shadow);
-        }
-
-        .shul-image {
-            width: 100%;
-            height: 250px;
-            object-fit: cover;
-            border-radius: 12px;
-            box-shadow: var(--card-shadow);
-            display: block;
-        }
-
-        .shabbat-day-card {
-            background: white;
-            border-radius: 16px;
-            box-shadow: var(--card-shadow);
-            padding: 25px;
-        }
-
-        .time-row {
-            display: flex;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #f0f0f0;
-            gap: 15px;
-        }
-        .time-row:last-child { border-bottom: none; }
+        .main-title { color: var(--primary); font-size: 1.8rem; font-weight: 700; margin: 0; }
         
-        .time { 
-            font-weight: 700; 
-            font-size: 1.2rem; 
-            color: var(--primary);
-            background: #eef4ff;
-            padding: 2px 10px;
-            border-radius: 8px;
-            min-width: 60px;
-            text-align: center;
-        }
+        .sub-title { color: #666; font-weight: 500; margin-top: 5px; font-size: 1.1rem; }
+        
+        .molad-text { color: #555; font-size: 0.95rem; margin-top: 4px; font-style: italic; display: none; }
+
+        .messages-card { background: #e3f2fd; border: 1px solid #bbdefb; border-radius: 12px; padding: 15px; text-align: center; color: #0d47a1; font-weight: bold; display: none; }
+
+        .times-card, .shabbat-day-card { background: white; padding: 20px; border-radius: 16px; box-shadow: var(--card-shadow); }
+        .shabbat-day-card { padding: 25px; }
+        .shul-image { width: 100%; height: 250px; object-fit: cover; border-radius: 12px; box-shadow: var(--card-shadow); display: block; }
+
+        .time-row { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f0f0; gap: 15px; }
+        .time-row:last-child { border-bottom: none; }
+        .time { font-weight: 700; font-size: 1.2rem; color: var(--primary); background: #eef4ff; padding: 2px 10px; border-radius: 8px; min-width: 60px; text-align: center; }
         .desc { font-weight: 500; color: #444; flex: 1; }
-
-        .section-header {
-            color: var(--primary);
-            font-weight: 700;
-            font-size: 1rem;
-            margin: 20px 0 10px 0;
-            text-decoration: underline;
-        }
-
-        .center-row {
-            display: flex;
-            justify-content: flex-start; 
-            gap: 15px;
-            margin-bottom: 10px;
-            align-items: center;
-            border-bottom: 1px dashed #eee;
-            padding-bottom: 10px;
-        }
+        .section-header { color: var(--primary); font-weight: 700; font-size: 1rem; margin: 20px 0 10px 0; text-decoration: underline; }
+        
+        .center-row { display: flex; justify-content: flex-start; gap: 15px; margin-bottom: 10px; align-items: center; border-bottom: 1px dashed #eee; padding-bottom: 10px; }
         .center-row:last-child { border-bottom: none; }
 
+        /* Note Text - Controls Shiur/Kiddush */
         .note-text {
-            background: #fff8e1;
-            padding: 12px;
-            border-radius: 8px;
-            margin-top: 15px;
-            font-size: 0.95rem;
-            color: #795548;
-            text-align: right;
-            border-right: 4px solid #ffc107;
+            background: #fff8e1; padding: 12px; border-radius: 8px;
+            margin-top: 15px; font-size: 0.95rem; color: #795548;
+            text-align: right; border-right: 4px solid #ffc107;
+            padding-right: 15px;
+            display: none; /* Hidden by default until JS decides content */
         }
 
         .dvar-torah-container { margin-top: 0; }
-        .dt-btn {
-            width: 100%; background: white; border: 2px solid var(--primary);
-            color: var(--primary); padding: 15px; border-radius: 12px;
-            font-size: 1rem; font-weight: bold; cursor: pointer;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .dt-content {
-            background: white; margin-top: 10px; padding: 20px;
-            border-radius: 12px; box-shadow: var(--card-shadow); display: none;
-        }
+        .dt-btn { width: 100%; background: white; border: 2px solid var(--primary); color: var(--primary); padding: 15px; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .dt-content { background: white; margin-top: 10px; padding: 20px; border-radius: 12px; box-shadow: var(--card-shadow); display: none; }
 
-        /* --- STATIC PRINT BUTTON (Not Sticky) --- */
-        .static-print-btn {
-            display: block;
-            width: 100%;
-            max-width: 300px;
-            margin: 20px auto 0 auto; /* Center horizontally */
-            background: #333; 
-            color: white; 
-            padding: 15px 30px;
-            border-radius: 30px; 
-            font-weight: bold; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            border: none; 
-            cursor: pointer; 
-            text-align: center;
-            transition: background 0.2s;
-        }
+        .static-print-btn { display: block; width: 100%; max-width: 300px; margin: 20px auto 0 auto; background: #333; color: white; padding: 15px 30px; border-radius: 30px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border: none; cursor: pointer; text-align: center; transition: background 0.2s; }
         .static-print-btn:hover { background: #555; }
-
         .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 50px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .hidden { display: none; }
 
-        /* ==========================================================================
-           🖨️ PRINT STYLES (PDF Replica)
-           ========================================================================== */
+        /* PRINT STYLES */
         @media print {
             @page { size: A4 portrait; margin: 1cm; }
-            
-            body { 
-                background: white; 
-                color: black;
-                font-family: 'Rubik', sans-serif;
-                -webkit-print-color-adjust: exact;
-                direction: rtl; 
-            }
-
+            body { background: white; color: black; font-family: 'Rubik', sans-serif; -webkit-print-color-adjust: exact; direction: rtl; }
             .web-container { max-width: 100%; margin: 0; padding: 0; box-shadow: none; }
             .static-print-btn, .loader, .dvar-torah-container { display: none !important; }
-
-            .layout-grid {
-                display: grid;
-                grid-template-columns: 1fr 35%; 
-                grid-template-areas: 
-                    "header header"
-                    "top-times image"
-                    "day-times day-times" 
-                    "footer footer";
-                gap: 40px;
-                margin-top: 20px;
-            }
-
+            .layout-grid { display: grid; grid-template-columns: 1fr 35%; grid-template-areas: "header header" "messages messages" "top-times image" "day-times day-times" "footer footer"; gap: 40px; margin-top: 20px; }
             .header-card { box-shadow: none; border: none; padding: 0; margin-bottom: 20px; text-align: center; }
             .header-row { margin-bottom: 0; }
             .logo-img { height: 80px; }
             .main-title { font-size: 28px; margin-top: 10px; color: #1a3b80 !important; }
-            .sub-title { font-size: 18px; margin-bottom: 40px; color: black; }
-
-            .times-card, .shabbat-day-card {
-                background: none; padding: 0; box-shadow: none; border-radius: 0;
-            }
-
-            .shul-image {
-                height: 200px; width: 100%; border: 1px solid #ccc; box-shadow: none; border-radius: 4px;
-            }
-
-            .time-row, .center-row {
-                border-bottom: none;
-                padding: 4px 0;
-                justify-content: flex-start; 
-            }
-            
-            .time { 
-                background: none; color: black !important; font-size: 18px; padding: 0;
-                min-width: 60px; text-align: right; margin-left: 15px; font-weight: 800;
-            }
+            .sub-title { font-size: 18px; margin-bottom: 5px; color: black; }
+            .molad-text { display: block !important; font-size: 14px; margin-bottom: 30px; color: #444; }
+            .messages-card { background: none; border: 2px solid #000; color: black; margin-bottom: 20px; font-size: 1.2rem; }
+            .times-card, .shabbat-day-card { background: none; padding: 0; box-shadow: none; border-radius: 0; }
+            .shul-image { height: 200px; width: 100%; border: 1px solid #ccc; box-shadow: none; border-radius: 4px; }
+            .time-row, .center-row { border-bottom: none; padding: 4px 0; justify-content: flex-start; }
+            .time { background: none; color: black !important; font-size: 18px; padding: 0; min-width: 60px; text-align: right; margin-left: 15px; font-weight: 800; }
             .desc { font-size: 18px; font-weight: normal; color: black; text-align: right; }
-            
-            .section-header {
-                color: #1a3b80 !important; font-size: 18px; 
-                margin-top: 30px; margin-bottom: 10px; text-align: right;
-                text-decoration: none; font-weight: bold;
-            }
-
+            .section-header { color: #1a3b80 !important; font-size: 18px; margin-top: 30px; margin-bottom: 10px; text-align: right; text-decoration: none; font-weight: bold; }
             .shabbat-day-card { margin-top: 40px; text-align: right; }
-            
-            .note-text {
-                background: none; border: none; padding: 0; margin-top: 10px; 
-                color: black; text-align: right; font-style: italic;
-            }
-
-            .footer-shabbat {
-                text-align: center; font-size: 28px; font-weight: 700; margin-top: 60px;
-            }
+            .note-text { background: none; border: none; padding: 0; margin-top: 10px; color: black; text-align: right; font-style: italic; padding-right: 0; }
+            .footer-shabbat { text-align: center; font-size: 28px; font-weight: 700; margin-top: 60px; }
         }
     </style>
 </head>
@@ -300,7 +151,7 @@
 
     <div id="content" class="layout-grid hidden">
         
-        <!-- 1. Header -->
+        <!-- Header -->
         <div class="header-card area-header">
             <div class="header-row">
                 <div class="bsd">בס"ד</div>
@@ -310,9 +161,13 @@
             </div>
             <div class="main-title" id="parsha-name">שבת קודש...</div>
             <div class="sub-title" id="mevarchim-text"></div>
+            <div class="molad-text" id="molad-text"></div>
         </div>
 
-        <!-- 2. Top Times -->
+        <!-- Messages Area -->
+        <div class="messages-card area-messages" id="messages-box"></div>
+
+        <!-- Top Times -->
         <div class="times-card area-top-times">
             <div class="time-row">
                 <span class="time" id="candle-lighting">--:--</span>
@@ -330,12 +185,12 @@
             </div>
         </div>
 
-        <!-- 3. Image -->
+        <!-- Image -->
         <div class="area-image">
             <img src="kotel.jpg" alt="Shul Image" class="shul-image" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Jerusalem_Symbol.svg/600px-Jerusalem_Symbol.svg.png'">
         </div>
 
-        <!-- 4. Shabbat Day Times -->
+        <!-- Shabbat Day -->
         <div class="shabbat-day-card area-day-times">
             <div class="section-header" style="margin-bottom:20px; margin-top:0;">שבת קודש</div>
             
@@ -349,9 +204,8 @@
                 <span class="desc" style="flex:none;">תפילת ילדים</span>
             </div>
 
-            <div class="note-text">
-                שיעור מאת הרב נתנאל בהלכות שבת לאחר התפילה
-            </div>
+            <!-- Dynamic Info Box (Shiur or Kiddush) -->
+            <div class="note-text" id="info-box"></div>
             
             <br>
 
@@ -371,14 +225,14 @@
             </div>
         </div>
         
-        <!-- 5. Footer Text -->
+        <!-- Footer -->
         <div class="area-footer">
             <div class="footer-shabbat" style="text-align:center; margin-top:30px; font-weight:bold; font-size:1.5rem; display:none; display:block in print;">
                 שבת שלום!
             </div>
         </div>
 
-        <!-- 6. Dvar Torah -->
+        <!-- Dvar Torah -->
         <div class="dvar-torah-container area-dt">
             <button class="dt-btn" onclick="toggleDt()">
                 <span>📚 דבר תורה לשבת</span>
@@ -390,7 +244,7 @@
             </div>
         </div>
 
-        <!-- 7. Print Button (Standard) -->
+        <!-- Print Button -->
         <div class="area-print">
             <button onclick="window.print()" class="static-print-btn">
                 🖨️ הדפס / שמור כ-PDF
@@ -427,27 +281,63 @@
             if (!response.ok) throw new Error("Data file not found");
             const data = await response.json();
 
+            // 1. Text & Mevarchim
             document.getElementById('parsha-name').innerText = "שבת קודש פרשת " + (data.parsha || "השבוע");
-            document.getElementById('candle-lighting').innerText = data.candles;
-            document.getElementById('havdalah').innerText = data.havdalah;
             
             const mevDiv = document.getElementById('mevarchim-text');
+            const moladDiv = document.getElementById('molad-text');
+            
             if (data.description) {
                 mevDiv.innerText = data.description;
                 mevDiv.style.display = 'block';
+                if (data.molad) {
+                    moladDiv.innerText = data.molad;
+                    moladDiv.style.display = 'block';
+                }
             } else {
                 mevDiv.style.display = 'none';
             }
 
+            // 2. Dynamic Messages
+            if (data.messages && data.messages.trim() !== "") {
+                const msgBox = document.getElementById('messages-box');
+                msgBox.innerText = data.messages;
+                msgBox.style.display = 'block';
+            }
+
+            // 3. Info Box Logic (Kiddush vs Shiur)
+            const infoBox = document.getElementById('info-box');
+            
+            if (data.kidush && data.kidush.trim() !== "") {
+                // Mode: KIDDUSH
+                infoBox.style.display = 'block';
+                infoBox.style.fontWeight = 'bold'; // Bold for Kiddush
+                infoBox.innerText = data.kidush; 
+            } 
+            else if (data.shiur_topic && data.shiur_topic.trim() !== "") {
+                // Mode: SHIUR
+                infoBox.style.display = 'block';
+                infoBox.style.fontWeight = 'normal';
+                infoBox.innerText = `שיעור מאת הרב נתנאל ב${data.shiur_topic} לאחר התפילה`;
+            } 
+            else {
+                // Mode: HIDE
+                infoBox.style.display = 'none';
+            }
+
+            // 4. Times
+            document.getElementById('candle-lighting').innerText = data.candles;
+            document.getElementById('havdalah').innerText = data.havdalah;
+            document.getElementById('mincha-erev').innerText = calculateMincha(data.candles);
+            document.getElementById('arvit-motzash').innerText = calculateArvit(data.havdalah);
+
+            // 5. Dvar Torah
             if (data.dvar_torah) {
                 document.getElementById('dvar-torah-text').innerText = data.dvar_torah;
                 if (data.dvar_source) document.getElementById('dvar-torah-source').innerText = data.dvar_source;
             } else {
                 document.querySelector('.dvar-torah-container').style.display = 'none';
             }
-
-            document.getElementById('mincha-erev').innerText = calculateMincha(data.candles);
-            document.getElementById('arvit-motzash').innerText = calculateArvit(data.havdalah);
 
             document.getElementById('loader').style.display = 'none';
             document.getElementById('content').classList.remove('hidden');
