@@ -134,8 +134,9 @@ def scrape_times():
         "havdalah": "17:00",
         "dvar_torah": "",
         "dvar_source": "",
-        "shiur_topic": manual_config.get("shiur_topic", ""), # Default empty
-        "kidush": manual_config.get("kidush", ""),           # New Field
+        # FIX: Default to "הלכות שבת" if manual data is missing
+        "shiur_topic": manual_config.get("shiur_topic", "הלכות שבת"), 
+        "kidush": manual_config.get("kidush", ""),
         "messages": manual_config.get("messages", ""), 
         "source": "Hybrid Data"
     }
