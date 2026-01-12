@@ -99,13 +99,12 @@
         .center-row { display: flex; justify-content: flex-start; gap: 15px; margin-bottom: 10px; align-items: center; border-bottom: 1px dashed #eee; padding-bottom: 10px; }
         .center-row:last-child { border-bottom: none; }
 
-        /* Note Text - Controls Shiur/Kiddush */
         .note-text {
             background: #fff8e1; padding: 12px; border-radius: 8px;
             margin-top: 15px; font-size: 0.95rem; color: #795548;
             text-align: right; border-right: 4px solid #ffc107;
             padding-right: 15px;
-            display: none; /* Hidden by default until JS decides content */
+            display: none;
         }
 
         .dvar-torah-container { margin-top: 0; }
@@ -139,7 +138,7 @@
             .desc { font-size: 18px; font-weight: normal; color: black; text-align: right; }
             .section-header { color: #1a3b80 !important; font-size: 18px; margin-top: 30px; margin-bottom: 10px; text-align: right; text-decoration: none; font-weight: bold; }
             .shabbat-day-card { margin-top: 40px; text-align: right; }
-            .note-text { background: none; border: none; padding: 0 15px; margin-top: 10px; color: black; text-align: right; font-style: italic;  }
+            .note-text { background: none; border: none; padding: 0; margin-top: 10px; color: black; text-align: right; font-style: italic; padding-right: 0; }
             .footer-shabbat { text-align: center; font-size: 28px; font-weight: 700; margin-top: 60px; }
         }
     </style>
@@ -204,18 +203,20 @@
                 <span class="desc" style="flex:none;">תפילת ילדים</span>
             </div>
 
-            <!-- Dynamic Info Box (Shiur or Kiddush) -->
+            <!-- Dynamic Info Box -->
             <div class="note-text" id="info-box"></div>
             
             <br>
 
             <div class="center-row">
-                <span class="time">15:15</span>
+                <!-- Added ID for dynamic update -->
+                <span class="time" id="orot-time">--:--</span> 
                 <span class="desc" style="flex:none;">לימוד בספר "אורות"</span>
             </div>
             
             <div class="center-row">
-                <span class="time">16:00</span>
+                <!-- Added ID for dynamic update -->
+                <span class="time" id="mincha-shabbat">--:--</span>
                 <span class="desc" style="flex:none;">מנחה של שבת</span>
             </div>
 
@@ -281,7 +282,7 @@
             if (!response.ok) throw new Error("Data file not found");
             const data = await response.json();
 
-            // 1. Text & Mevarchim
+            // 1. Texts
             document.getElementById('parsha-name').innerText = "שבת קודש פרשת " + (data.parsha || "השבוע");
             
             const mevDiv = document.getElementById('mevarchim-text');
@@ -298,37 +299,38 @@
                 mevDiv.style.display = 'none';
             }
 
-            // 2. Dynamic Messages
+            // 2. Messages
             if (data.messages && data.messages.trim() !== "") {
                 const msgBox = document.getElementById('messages-box');
                 msgBox.innerText = data.messages;
                 msgBox.style.display = 'block';
             }
 
-            // 3. Info Box Logic (Kiddush vs Shiur)
+            // 3. Info Box
             const infoBox = document.getElementById('info-box');
-            
             if (data.kidush && data.kidush.trim() !== "") {
-                // Mode: KIDDUSH
                 infoBox.style.display = 'block';
-                infoBox.style.fontWeight = 'bold'; // Bold for Kiddush
+                infoBox.style.fontWeight = 'bold';
                 infoBox.innerText = data.kidush; 
             } 
             else if (data.shiur_topic && data.shiur_topic.trim() !== "") {
-                // Mode: SHIUR
                 infoBox.style.display = 'block';
                 infoBox.style.fontWeight = 'normal';
                 infoBox.innerText = `שיעור מאת הרב נתנאל ב${data.shiur_topic} לאחר התפילה`;
             } 
             else {
-                // Mode: HIDE
                 infoBox.style.display = 'none';
             }
 
-            // 4. Times
+            // 4. Times & Calculations
             document.getElementById('candle-lighting').innerText = data.candles;
             document.getElementById('havdalah').innerText = data.havdalah;
             document.getElementById('mincha-erev').innerText = calculateMincha(data.candles);
+            
+            // New Calcs
+            const minchaShabbat = calculateMinchaShabbat(data.candles);
+            document.getElementById('mincha-shabbat').innerText = minchaShabbat;
+            document.getElementById('orot-time').innerText = calculateOrot(minchaShabbat);
             document.getElementById('arvit-motzash').innerText = calculateArvit(data.havdalah);
 
             // 5. Dvar Torah
@@ -363,6 +365,7 @@
     }
 
     function calculateMincha(candleTimeStr) {
+        // Friday Mincha: +15, round up 5, max 18
         if(!candleTimeStr) return "--:--";
         const cTime = timeToMinutes(candleTimeStr);
         let target = cTime + 15;
@@ -371,12 +374,28 @@
         return minutesToTime(rounded);
     }
 
+    function calculateMinchaShabbat(candleTimeStr) {
+        // Shabbat Mincha: CandleTime - 15, round down 5
+        if(!candleTimeStr) return "--:--";
+        const cTime = timeToMinutes(candleTimeStr);
+        let target = cTime - 15;
+        let rounded = Math.floor(target / 5) * 5;
+        return minutesToTime(rounded);
+    }
+
+    function calculateOrot(minchaTimeStr) {
+        // Orot: Mincha - 45
+        if(!minchaTimeStr) return "--:--";
+        const mTime = timeToMinutes(minchaTimeStr);
+        return minutesToTime(mTime - 45);
+    }
+
     function calculateArvit(havdalahTimeStr) {
+        // Arvit Motzash: Havdalah - 4, round down 5
         if(!havdalahTimeStr) return "--:--";
         const hTime = timeToMinutes(havdalahTimeStr);
-        let target = hTime - 5;
-        let rounded = Math.round(target / 5) * 5;
-        if ((hTime - rounded) > 8) rounded += 5;
+        let target = hTime - 4;
+        let rounded = Math.floor(target / 5) * 5;
         return minutesToTime(rounded);
     }
 

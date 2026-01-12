@@ -65,60 +65,72 @@ def strip_html(text):
     text = re.sub(r'\[\d+\]', '', text)
     return text.strip()
 
-def flatten_text_list(data_he):
-    texts = []
-    if isinstance(data_he, list):
-        for item in data_he:
-            texts.extend(flatten_text_list(item))
-    elif isinstance(data_he, str):
-        texts.append(data_he)
-    return texts
+# --- BAT AYIN FETCHER ---
+def fetch_bat_ayin(parsha_name):
+    # Try different URL structures for Bat Ayin
+    # Bat Ayin usually follows "Bat_Ayin,_Parsha"
+    ref = f"Bat_Ayin,_{parsha_name}"
+    
+    # We specifically request the version: Jerusalem, 2001
+    encoded_ref = urllib.parse.quote(ref.replace(" ", "_"))
+    url = f"https://www.sefaria.org/api/texts/{encoded_ref}?lang=he&version=hebrew|Jerusalem,_2001"
+    
+    print(f"Trying Bat Ayin URL: {url}")
+    
+    try:
+        resp = requests.get(url)
+        if resp.status_code == 200:
+            data = resp.json()
+            if 'he' in data and data['he']:
+                segments = data['he']
+                
+                # Filter: Find a "Goldilocks" section (400 - 1400 chars)
+                best_segment = ""
+                
+                # Bat Ayin structure: often a list of strings (sections)
+                # Sometimes nested. Let's flatten one level if needed.
+                flat_segments = []
+                if isinstance(segments, list):
+                    for s in segments:
+                        if isinstance(s, list):
+                            # Join sub-parts of a section into one text
+                            flat_segments.append(" ".join([str(x) for x in s]))
+                        else:
+                            flat_segments.append(str(s))
+                else:
+                    flat_segments = [str(segments)]
 
-def fetch_sefaria_text(parsha_name):
-    book = PARSHA_MAP.get(parsha_name)
-    variations = []
-    if book: variations.append(f"Sefat_Emet,_{book},_{parsha_name}")
-    variations.append(f"Sefat_Emet,_{parsha_name}")
-    variations.append(f"Sefat_Emet,_Parashat_{parsha_name}")
-
-    for ref in variations:
-        safe_ref = ref.replace(" ", "_")
-        encoded_ref = urllib.parse.quote(safe_ref)
-        url = f"https://www.sefaria.org/api/texts/{encoded_ref}?lang=he"
-        print(f"Trying Sefaria URL: {url}")
-        
-        try:
-            resp = requests.get(url)
-            if resp.status_code == 200:
-                data = resp.json()
-                if 'he' in data and data['he']:
-                    all_segments = flatten_text_list(data['he'])
-                    best_segment = ""
-                    min_len = 10000
-                    for segment in all_segments:
-                        clean = strip_html(segment)
-                        length = len(clean)
-                        if length < 100: continue 
-                        if 150 < length < 550:
-                            return clean
-                        if length < min_len:
-                            min_len = length
+                for segment in flat_segments:
+                    clean = strip_html(segment)
+                    length = len(clean)
+                    
+                    # Ideal length
+                    if 400 < length < 1400:
+                        print(f"✅ Found perfect Bat Ayin section ({length} chars)")
+                        return clean
+                    
+                    # Backup: Keep the shortest one that is at least 300 chars
+                    if length > 300:
+                        if best_segment == "" or length < len(best_segment):
                             best_segment = clean
-                    if best_segment: return best_segment
-                    return strip_html(all_segments[0])
-        except Exception as e:
-            print(f"❌ Error fetching {url}: {e}")
+                
+                if best_segment:
+                    print(f"⚠️ Using backup Bat Ayin section ({len(best_segment)} chars)")
+                    return best_segment
+                
+                # Fallback to first if nothing fits criteria
+                return strip_html(flat_segments[0])
+
+    except Exception as e:
+        print(f"❌ Error fetching Bat Ayin: {e}")
+    
     return None
 
 def load_manual_data():
     try:
         with open('manual_data.json', 'r', encoding='utf-8') as f:
             return json.load(f)
-    except FileNotFoundError:
-        print("⚠️ manual_data.json not found, using defaults.")
-        return {}
-    except Exception as e:
-        print(f"❌ Error reading manual_data.json: {e}")
+    except Exception:
         return {}
 
 def scrape_times():
@@ -134,7 +146,6 @@ def scrape_times():
         "havdalah": "17:00",
         "dvar_torah": "",
         "dvar_source": "",
-        # FIX: Default to "הלכות שבת" if manual data is missing
         "shiur_topic": manual_config.get("shiur_topic", "הלכות שבת"), 
         "kidush": manual_config.get("kidush", ""),
         "messages": manual_config.get("messages", ""), 
@@ -169,19 +180,16 @@ def scrape_times():
     except Exception as e:
         print(f"❌ Metadata Error: {e}")
 
-    # 2. SEFAT EMET
+    # 2. BAT AYIN (Replaced Sefat Emet)
     if english_parsha:
-        print(f"📚 Step 2: Fetching Sefat Emet...")
-        text = fetch_sefaria_text(english_parsha)
+        print(f"📚 Step 2: Fetching Bat Ayin...")
+        text = fetch_bat_ayin(english_parsha)
         if text:
-            data["dvar_source"] = f"מקור: שפת אמת, {hebrew_parsha_name}"
-            limit = 600
-            if len(text) > limit:
-                cut_index = text.rfind('.', 0, limit)
-                data["dvar_torah"] = text[:cut_index+1] + "..." if cut_index > 100 else text[:limit] + "..."
-            else:
-                data["dvar_torah"] = text
-            print("✅ Sefat Emet Found!")
+            data["dvar_source"] = f"מקור: בת עין, {hebrew_parsha_name}"
+            data["dvar_torah"] = text # Use full text found
+            print("✅ Bat Ayin Found!")
+        else:
+            print("⚠️ Bat Ayin not found.")
 
     # 3. ITIM LABINA
     print("🌍 Step 3: Scraping Times...")
@@ -211,7 +219,6 @@ def scrape_times():
                 if molad_match:
                     raw_molad = molad_match.group(1).strip()
                     data["molad"] = re.sub(r'\s+', ' ', raw_molad)
-                    print(f"🌑 Molad: {data['molad']}")
 
         except Exception as e:
             print(f"❌ Scrape Error: {e}")
