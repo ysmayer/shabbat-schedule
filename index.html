@@ -22,6 +22,7 @@
             background-color: var(--bg-web);
             color: var(--text);
             line-height: 1.6;
+            direction: rtl; /* Force RTL */
         }
 
         .web-container {
@@ -39,6 +40,7 @@
                 "messages" 
                 "top-times"
                 "day-times"
+                "info"
                 "dt"
                 "footer"
                 "image"
@@ -53,6 +55,7 @@
                     "messages messages"
                     "top-times image"
                     "day-times day-times"
+                    "info info"
                     "dt dt"
                     "footer footer"
                     "print-btn print-btn";
@@ -65,6 +68,7 @@
         .area-top-times { grid-area: top-times; }
         .area-image { grid-area: image; }
         .area-day-times { grid-area: day-times; }
+        .area-info { grid-area: info; } /* New area for the moved box */
         .area-dt { grid-area: dt; }
         .area-footer { grid-area: footer; }
         .area-print { grid-area: print-btn; }
@@ -79,9 +83,7 @@
         .bsd { font-size: 14px; color: #888; }
         .logo-img { height: 60px; object-fit: contain; }
         .main-title { color: var(--primary); font-size: 1.8rem; font-weight: 700; margin: 0; }
-        
         .sub-title { color: #666; font-weight: 500; margin-top: 5px; font-size: 1.1rem; }
-        
         .molad-text { color: #555; font-size: 0.95rem; margin-top: 4px; font-style: italic; display: none; }
 
         .messages-card { background: #e3f2fd; border: 1px solid #bbdefb; border-radius: 12px; padding: 15px; text-align: center; color: #0d47a1; font-weight: bold; display: none; }
@@ -92,25 +94,34 @@
 
         .time-row { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f0f0; gap: 15px; }
         .time-row:last-child { border-bottom: none; }
-        .time { font-weight: 700; font-size: 1.2rem; color: var(--primary); background: #eef4ff; padding: 2px 10px; border-radius: 8px; min-width: 60px; text-align: center; }
-        .desc { font-weight: 500; color: #444; flex: 1; }
-        .section-header { color: var(--primary); font-weight: 700; font-size: 1rem; margin: 20px 0 10px 0; text-decoration: underline; }
+        
+        /* RTL Time Fix */
+        .time { 
+            font-weight: 700; font-size: 1.2rem; color: var(--primary); 
+            background: #eef4ff; padding: 2px 10px; border-radius: 8px; 
+            min-width: 60px; text-align: center;
+            unicode-bidi: plaintext;
+        }
+        
+        .desc { font-weight: 500; color: #444; flex: 1; text-align: right; }
+        .section-header { color: var(--primary); font-weight: 700; font-size: 1rem; margin: 20px 0 10px 0; text-decoration: underline; text-align: right; }
         
         .center-row { display: flex; justify-content: flex-start; gap: 15px; margin-bottom: 10px; align-items: center; border-bottom: 1px dashed #eee; padding-bottom: 10px; }
         .center-row:last-child { border-bottom: none; }
 
-        /* Note Text - Controls Shiur/Kiddush */
+        /* Note Text Box (Moved and Styled for RTL) */
         .note-text {
             background: #fff8e1; padding: 12px; border-radius: 8px;
-            margin-top: 15px; font-size: 0.95rem; color: #795548;
+            margin-top: 5px; font-size: 1rem; color: #795548;
             text-align: right; border-right: 4px solid #ffc107;
             padding-right: 15px;
             display: none;
+            unicode-bidi: plaintext; /* Fixes time/number positioning */
         }
 
         .dvar-torah-container { margin-top: 0; }
         .dt-btn { width: 100%; background: white; border: 2px solid var(--primary); color: var(--primary); padding: 15px; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-        .dt-content { background: white; margin-top: 10px; padding: 20px; border-radius: 12px; box-shadow: var(--card-shadow); display: none; }
+        .dt-content { background: white; margin-top: 10px; padding: 20px; border-radius: 12px; box-shadow: var(--card-shadow); display: none; text-align: right; unicode-bidi: plaintext; }
 
         .static-print-btn { display: block; width: 100%; max-width: 300px; margin: 20px auto 0 auto; background: #333; color: white; padding: 15px 30px; border-radius: 30px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border: none; cursor: pointer; text-align: center; transition: background 0.2s; }
         .static-print-btn:hover { background: #555; }
@@ -121,12 +132,11 @@
         /* PRINT STYLES */
         @media print {
             @page { size: A4 portrait; margin: 1cm; }
-            body { background: white; color: black; font-family: 'Rubik', sans-serif; -webkit-print-color-adjust: exact; direction: rtl; }
+            body { background: white; color: black; -webkit-print-color-adjust: exact; direction: rtl; }
             .web-container { max-width: 100%; margin: 0; padding: 0; box-shadow: none; }
             .static-print-btn, .loader, .dvar-torah-container { display: none !important; }
-            .layout-grid { display: grid; grid-template-columns: 1fr 35%; grid-template-areas: "header header" "messages messages" "top-times image" "day-times day-times" "footer footer"; gap: 40px; margin-top: 20px; }
+            .layout-grid { display: grid; grid-template-columns: 1fr 35%; grid-template-areas: "header header" "messages messages" "top-times image" "day-times day-times" "info info" "footer footer"; gap: 40px; margin-top: 20px; }
             .header-card { box-shadow: none; border: none; padding: 0; margin-bottom: 20px; text-align: center; }
-            .header-row { margin-bottom: 0; }
             .logo-img { height: 80px; }
             .main-title { font-size: 28px; margin-top: 10px; color: #1a3b80 !important; }
             .sub-title { font-size: 18px; margin-bottom: 5px; color: black; }
@@ -138,8 +148,7 @@
             .time { background: none; color: black !important; font-size: 18px; padding: 0; min-width: 60px; text-align: right; margin-left: 15px; font-weight: 800; }
             .desc { font-size: 18px; font-weight: normal; color: black; text-align: right; }
             .section-header { color: #1a3b80 !important; font-size: 18px; margin-top: 30px; margin-bottom: 10px; text-align: right; text-decoration: none; font-weight: bold; }
-            .shabbat-day-card { margin-top: 40px; text-align: right; }
-            .note-text { background: none; border: none; padding: 0; margin-top: 10px; color: black; text-align: right; font-style: italic; padding-right: 10px; }
+            .note-text { background: none; border: none; padding: 0; margin-top: 10px; color: black; text-align: right; font-style: italic; display: block !important; }
             .footer-shabbat { text-align: center; font-size: 28px; font-weight: 700; margin-top: 60px; }
         }
     </style>
@@ -198,8 +207,6 @@
                 <span class="time" id="kids-time">9:15</span>
                 <span class="desc" style="flex:none;">תפילת ילדים</span>
             </div>
-
-            <div class="note-text" id="info-box"></div>
             
             <br>
 
@@ -218,11 +225,9 @@
                 <span class="desc" style="flex:none;">ערבית של מוצאי שבת</span>
             </div>
         </div>
-        
-        <div class="area-footer">
-            <div class="footer-shabbat" style="text-align:center; margin-top:30px; font-weight:bold; font-size:1.5rem; display:none; display:block in print;">
-                שבת שלום!
-            </div>
+
+        <div class="area-info">
+            <div class="note-text" id="info-box"></div>
         </div>
 
         <div class="dvar-torah-container area-dt">
@@ -233,6 +238,12 @@
             <div id="dt-content" class="dt-content">
                 <div id="dvar-torah-text"></div>
                 <div id="dvar-torah-source" style="margin-top:10px; font-weight:bold; color:#666; font-size:0.9rem;"></div>
+            </div>
+        </div>
+        
+        <div class="area-footer">
+            <div class="footer-shabbat" style="text-align:center; margin-top:30px; font-weight:bold; font-size:1.5rem; display:none;">
+                שבת שלום!
             </div>
         </div>
 
@@ -248,11 +259,11 @@
 <script>
     setTimeout(() => {
         const loader = document.getElementById('loader');
-        if (loader && loader.style.display !== 'none') {
+        if (loader) {
             loader.style.display = 'none';
             document.getElementById('content').classList.remove('hidden');
         }
-    }, 4000);
+    }, 2000);
 
     function toggleDt() {
         const content = document.getElementById('dt-content');
@@ -296,7 +307,7 @@
                 msgBox.style.display = 'block';
             }
 
-            // 3. Info Box
+            // 3. Info Box Logic
             const infoBox = document.getElementById('info-box');
             if (data.kidush && data.kidush.trim() !== "") {
                 infoBox.style.display = 'block';
@@ -317,7 +328,7 @@
             document.getElementById('havdalah').innerText = data.havdalah;
             document.getElementById('mincha-erev').innerText = calculateMincha(data.candles);
 
-            // 5. Summer Logic for Morning Times
+            // 5. Summer Logic
             if (data.is_summer === true) {
                 document.getElementById('shacharit-time').innerText = "8:00";
                 document.getElementById('kids-time').innerText = "9:30";
@@ -326,8 +337,8 @@
                 document.getElementById('kids-time').innerText = "9:15";
             }
             
-            // 6. Shabbat Afternoon Calculations
-            const minchaShabbat = calculateMinchaShabbat(data); // Updated function call
+            // 6. Calculations
+            const minchaShabbat = calculateMinchaShabbat(data);
             document.getElementById('mincha-shabbat').innerText = minchaShabbat;
             document.getElementById('orot-time').innerText = calculateOrot(minchaShabbat);
             document.getElementById('arvit-motzash').innerText = calculateArvit(data.havdalah);
@@ -340,14 +351,9 @@
                 document.querySelector('.dvar-torah-container').style.display = 'none';
             }
 
-            document.getElementById('loader').style.display = 'none';
-            document.getElementById('content').classList.remove('hidden');
-
         } catch (error) {
             console.error(error);
             document.getElementById('parsha-name').innerText = "שגיאה בטעינת נתונים";
-            document.getElementById('loader').style.display = 'none';
-            document.getElementById('content').classList.remove('hidden');
         }
     }
 
@@ -373,12 +379,7 @@
     }
 
     function calculateMinchaShabbat(data) {
-        // Fix to 18:00 if summer is true
-        if (data.is_summer === true) {
-            return "18:00";
-        }
-        
-        // Otherwise use original winter calculation
+        if (data.is_summer === true) return "18:00";
         if(!data.candles) return "--:--";
         const cTime = timeToMinutes(data.candles);
         let limit = cTime - 15;
