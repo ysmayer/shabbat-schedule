@@ -9,5 +9,6 @@
   "shiur_topic": "הלכות שבת",
   "kidush": "",
   "messages": "",
-  "source": "Hybrid Data"
+  "source": "Hybrid Data",
+  "is_summer": true
 }
