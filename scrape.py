@@ -1,8 +1,10 @@
 import json
+import os
 import re
 import requests
 import urllib.parse
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
+from zoneinfo import ZoneInfo
 from playwright.sync_api import sync_playwright
 from pyluach import dates
 
@@ -133,10 +135,32 @@ def load_manual_data():
     except Exception:
         return {}
 
+def detect_is_summer(friday_date):
+    """Check if Israel is in summer time (DST) on the given Friday."""
+    tz = ZoneInfo("Asia/Jerusalem")
+    dt = datetime(friday_date.year, friday_date.month, friday_date.day, 12, 0, tzinfo=tz)
+    return bool(dt.dst())
+
+def resolve_image(english_parsha, manual_config):
+    """Pick the parsha image, with manual override and fallback."""
+    manual_image = manual_config.get("image")
+    if manual_image:
+        return manual_image
+    if english_parsha:
+        parsha_img = f"images/{english_parsha}.jpg"
+        if os.path.exists(parsha_img):
+            return parsha_img
+    return "kotel.jpg"
+
 def scrape_times():
     friday_iso = get_next_friday_date()
     friday_itin = get_friday_fmt_itin()
     manual_config = load_manual_data()
+
+    # is_summer: manual override takes precedence, otherwise auto-detect from DST
+    friday_date = date.fromisoformat(friday_iso)
+    manual_summer = manual_config.get("is_summer")
+    is_summer = manual_summer if manual_summer is not None else detect_is_summer(friday_date)
     
     data = {
         "parsha": "שבת שלום",
@@ -148,7 +172,9 @@ def scrape_times():
         "dvar_source": "",
         "shiur_topic": manual_config.get("shiur_topic", "הלכות שבת"), 
         "kidush": manual_config.get("kidush", ""),
-        "messages": manual_config.get("messages", ""), 
+        "messages": manual_config.get("messages", ""),
+        "is_summer": is_summer,
+        "image": "kotel.jpg",
         "source": "Hybrid Data"
     }
 
@@ -190,6 +216,11 @@ def scrape_times():
             print("✅ Bat Ayin Found!")
         else:
             print("⚠️ Bat Ayin not found.")
+
+    # Resolve image based on parsha
+    data["image"] = resolve_image(english_parsha, manual_config)
+    print(f"🖼️ Image: {data['image']}")
+    print(f"☀️ Summer: {is_summer}")
 
     # 3. ITIM LABINA
     print("🌍 Step 3: Scraping Times...")

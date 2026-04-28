@@ -1,0 +1,137 @@
+:root { 
+    --primary: #1a3b80; 
+    --text: #333;
+    --bg-web: #f0f2f5;
+    --card-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+body { 
+    font-family: 'Rubik', sans-serif; 
+    margin: 0; padding: 0; 
+    background-color: var(--bg-web);
+    color: var(--text);
+    line-height: 1.6;
+}
+
+.web-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    padding-bottom: 40px;
+}
+
+/* GRID LAYOUT */
+.layout-grid {
+    display: grid; gap: 20px; grid-template-columns: 1fr;
+    grid-template-areas: 
+        "header"
+        "top-times"
+        "day-times"
+        "messages" 
+        "dt"
+        "footer"
+        "image"
+        "print-btn"; 
+}
+
+@media (min-width: 768px) {
+    .layout-grid {
+        grid-template-columns: 1fr 300px;
+        grid-template-areas: 
+            "header header"
+            "top-times image"
+            "day-times day-times"
+            "messages messages"
+            "dt dt"
+            "footer footer"
+            "print-btn print-btn";
+        align-items: start;
+    }
+}
+
+.area-header { grid-area: header; }
+.area-messages { grid-area: messages; }
+.area-top-times { grid-area: top-times; }
+.area-image { grid-area: image; }
+.area-day-times { grid-area: day-times; }
+.area-dt { grid-area: dt; }
+.area-footer { grid-area: footer; }
+.area-print { grid-area: print-btn; }
+
+/* STYLES */
+.header-card {
+    background: white; border-radius: 16px; padding: 20px;
+    box-shadow: var(--card-shadow); text-align: center;
+    border-top: 5px solid var(--primary);
+}
+.header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.bsd { font-size: 14px; color: #888; }
+.logo-img { height: 60px; object-fit: contain; }
+.main-title { color: var(--primary); font-size: 1.8rem; font-weight: 700; margin: 0; }
+.sub-title { color: #666; font-weight: 500; margin-top: 5px; font-size: 1.1rem; }
+.molad-text { color: #555; font-size: 0.95rem; margin-top: 4px; font-style: italic; display: none; }
+
+.messages-card { background: #e3f2fd; border: 1px solid #bbdefb; border-radius: 12px; padding: 15px; text-align: center; color: #0d47a1; font-weight: bold; display: none; unicode-bidi: plaintext; }
+
+.times-card, .shabbat-day-card { background: white; padding: 20px; border-radius: 16px; box-shadow: var(--card-shadow); }
+.shabbat-day-card { padding: 25px; }
+.shul-image { width: 100%; height: 250px; object-fit: cover; border-radius: 12px; box-shadow: var(--card-shadow); display: block; }
+
+.time-row { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0f0f0; gap: 15px; }
+.time-row:last-child { border-bottom: none; }
+
+.time { 
+    font-weight: 700; font-size: 1.2rem; color: var(--primary); 
+    background: #eef4ff; padding: 2px 10px; border-radius: 8px; 
+    min-width: 60px; text-align: center;
+    unicode-bidi: plaintext;
+}
+.desc { font-weight: 500; color: #444; flex: 1; }
+.section-header { color: var(--primary); font-weight: 700; font-size: 1rem; margin: 20px 0 10px 0; text-decoration: underline; }
+
+.center-row { display: flex; justify-content: flex-start; gap: 15px; margin-bottom: 10px; align-items: center; border-bottom: 1px dashed #eee; padding-bottom: 10px; }
+.center-row:last-child { border-bottom: none; }
+
+/* Note Text Box */
+.note-text {
+    background: #fff8e1; padding: 12px; border-radius: 8px;
+    margin-bottom: 20px; font-size: 1rem; color: #795548;
+    text-align: right; border-right: 4px solid #ffc107;
+    padding-right: 15px;
+    display: none;
+    unicode-bidi: plaintext;
+}
+
+.dvar-torah-container { margin-top: 0; }
+.dt-btn { width: 100%; background: white; border: 2px solid var(--primary); color: var(--primary); padding: 15px; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-family: inherit; }
+.dt-content { background: white; margin-top: 10px; padding: 20px; border-radius: 12px; box-shadow: var(--card-shadow); display: none; unicode-bidi: plaintext; }
+
+.static-print-btn { display: block; width: 100%; max-width: 300px; margin: 20px auto 0 auto; background: #333; color: white; padding: 15px 30px; border-radius: 30px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2); border: none; cursor: pointer; text-align: center; transition: background 0.2s; font-family: inherit; font-size: 1rem; }
+.static-print-btn:hover { background: #555; }
+
+.loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 50px auto; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.hidden { display: none; }
+
+/* PRINT STYLES */
+@media print {
+    @page { size: A4 portrait; margin: 1cm; }
+    body { background: white; color: black; print-color-adjust: exact; -webkit-print-color-adjust: exact; direction: rtl; }
+    .web-container { max-width: 100%; margin: 0; padding: 0; box-shadow: none; }
+    .static-print-btn, .loader, .dvar-torah-container { display: none !important; }
+    .layout-grid { display: grid; grid-template-columns: 1fr 35%; grid-template-areas: "header header" "messages messages" "top-times image" "day-times day-times" "footer footer"; gap: 40px; margin-top: 20px; }
+    .header-card { box-shadow: none; border: none; padding: 0; margin-bottom: 20px; text-align: center; }
+    .logo-img { height: 80px; }
+    .main-title { font-size: 28px; margin-top: 10px; color: #1a3b80 !important; }
+    .sub-title { font-size: 18px; margin-bottom: 5px; color: black; }
+    .molad-text { display: block !important; font-size: 14px; margin-bottom: 30px; color: #444; }
+    .messages-card { background: none; border: 2px solid #000; color: black; margin-bottom: 20px; font-size: 1.2rem; display: block !important; }
+    .times-card, .shabbat-day-card { background: none; padding: 0; box-shadow: none; border-radius: 0; }
+    .shul-image { height: 200px; width: 100%; border: 1px solid #ccc; box-shadow: none; border-radius: 4px; }
+    .time-row, .center-row { border-bottom: none; padding: 4px 0; justify-content: flex-start; }
+    .time { background: none; color: black !important; font-size: 18px; padding: 0; min-width: 60px; text-align: right; margin-left: 15px; font-weight: 800; }
+    .desc { font-size: 18px; font-weight: normal; color: black; text-align: right; }
+    .section-header { color: #1a3b80 !important; font-size: 18px; margin-top: 30px; margin-bottom: 10px; text-align: right; text-decoration: none; font-weight: bold; }
+    .note-text { background: none; border: none; padding: 0; margin-top: 10px; color: black; text-align: right; font-style: italic; display: block !important; }
+    .footer-shabbat { text-align: center; font-size: 28px; font-weight: 700; margin-top: 60px; }
+}
