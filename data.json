@@ -9,5 +9,7 @@
   "shiur_topic": "הלכות שבת",
   "kidush": "",
   "messages": "",
+  "is_summer": true,
+  "image": "kotel.jpg",
   "source": "Hybrid Data"
 }
