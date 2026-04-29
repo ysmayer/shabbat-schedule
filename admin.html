@@ -72,6 +72,11 @@
                 <label>הודעות</label>
                 <textarea id="f-messages" placeholder="הודעה חשובה..."></textarea>
             </div>
+            <div class="field">
+                <label>תיאור שבת (למשל: שבת הגדול, שבת שירה)</label>
+                <input type="text" id="f-description" placeholder="אוטומטי (שבת מברכין וכו')">
+                <div class="current-data">השאר ריק לזיהוי אוטומטי</div>
+            </div>
         </div>
 
         <div class="card">
@@ -164,6 +169,7 @@
             document.getElementById('f-shiur').value = content.shiur_topic || '';
             document.getElementById('f-kidush').value = content.kidush || '';
             document.getElementById('f-messages').value = content.messages || '';
+            document.getElementById('f-description').value = content.description || '';
             setSummer(content.is_summer ?? null);
 
             // Load images list
@@ -220,6 +226,7 @@
             shiur_topic: document.getElementById('f-shiur').value,
             kidush: document.getElementById('f-kidush').value,
             messages: document.getElementById('f-messages').value,
+            description: document.getElementById('f-description').value,
             is_summer: summerValue,
             image: document.getElementById('f-image').value || null
         };

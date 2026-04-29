@@ -391,8 +391,8 @@
     function calculateArvit(havdalahTimeStr) {
         if(!havdalahTimeStr) return "--:--";
         const hTime = timeToMinutes(havdalahTimeStr);
-        let target = hTime - 4;
-        let rounded = Math.floor(target / 5) * 5;
+        let target = hTime - 5;
+        let rounded = Math.ceil(target / 5) * 5;
         return minutesToTime(rounded);
     }
 

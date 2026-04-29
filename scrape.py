@@ -164,7 +164,7 @@ def scrape_times():
     
     data = {
         "parsha": "שבת שלום",
-        "description": "", 
+        "description": manual_config.get("description", ""), 
         "molad": "", 
         "candles": "16:00",
         "havdalah": "17:00",
@@ -190,7 +190,8 @@ def scrape_times():
         
         if 23 <= heb_date.day <= 29:
             is_mevarchim = True
-            data["description"] = "שבת מברכין"
+            if not data["description"]:
+                data["description"] = "שבת מברכין"
             print("🌙 Status: Mevarchim Detected")
 
         h_url = f"https://www.hebcal.com/shabbat?cfg=json&geonameid=281184&M=on&date={friday_iso}"

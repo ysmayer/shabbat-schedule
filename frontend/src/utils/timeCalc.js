@@ -37,7 +37,7 @@ export function calculateOrot(minchaTimeStr) {
 export function calculateArvit(havdalahTimeStr) {
   if (!havdalahTimeStr) return '--:--';
   const hTime = timeToMinutes(havdalahTimeStr);
-  const target = hTime - 4;
-  const rounded = Math.floor(target / 5) * 5;
+  const target = hTime - 5;
+  const rounded = Math.ceil(target / 5) * 5;
   return minutesToTime(rounded);
 }
