@@ -165,7 +165,8 @@
             const file = await resp.json();
             currentSHA = file.sha;
 
-            const content = JSON.parse(atob(file.content));
+            const decoded = new TextDecoder().decode(Uint8Array.from(atob(file.content), c => c.charCodeAt(0)));
+            const content = JSON.parse(decoded);
             document.getElementById('f-shiur').value = content.shiur_topic || '';
             document.getElementById('f-kidush').value = content.kidush || '';
             document.getElementById('f-messages').value = content.messages || '';
