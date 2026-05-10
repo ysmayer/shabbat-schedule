@@ -98,8 +98,13 @@
                 <select id="f-image">
                     <option value="">אוטומטי (לפי פרשה)</option>
                 </select>
-                <div class="image-preview" id="image-preview"></div>
             </div>
+            <div class="field">
+                <label>או העלה תמונה חדשה</label>
+                <input type="file" id="f-image-upload" accept="image/*">
+                <button class="btn btn-secondary" type="button" onclick="uploadImage()">העלה תמונה לריפו</button>
+            </div>
+            <div class="image-preview" id="image-preview"></div>
         </div>
 
         <button class="btn btn-primary" onclick="saveData()">💾 שמור וסנכרן</button>
@@ -111,6 +116,7 @@
 <script>
     let currentSHA = null;
     let summerValue = null;
+    let imageChangeBound = false;
 
     function getConfig() {
         return {
@@ -185,6 +191,15 @@
         }
     }
 
+    function createImageOption(select, imagePath, label) {
+        const existing = Array.from(select.options).find(opt => opt.value === imagePath);
+        if (existing) return;
+        const opt = document.createElement('option');
+        opt.value = imagePath;
+        opt.textContent = label || imagePath.replace(/^images\//, '').replace(/\.[^.]+$/, '');
+        select.appendChild(opt);
+    }
+
     async function loadImages(selectedImage) {
         const { token, repo } = getConfig();
         const select = document.getElementById('f-image');
@@ -195,28 +210,100 @@
             if (resp.ok) {
                 const files = await resp.json();
                 files.filter(f => /\.(jpg|jpeg|png|webp)$/i.test(f.name)).forEach(f => {
-                    const opt = document.createElement('option');
-                    opt.value = `images/${f.name}`;
-                    opt.textContent = f.name.replace(/\.[^.]+$/, '');
-                    select.appendChild(opt);
+                    createImageOption(select, `images/${f.name}`);
                 });
             }
         } catch (e) {
             // images folder might not exist yet
         }
 
+        if (selectedImage && !Array.from(select.options).some(opt => opt.value === selectedImage)) {
+            createImageOption(select, selectedImage, 'תמונה שמורה ידנית');
+        }
+
         if (selectedImage) select.value = selectedImage;
 
-        select.addEventListener('change', () => {
-            const preview = document.getElementById('image-preview');
-            if (select.value) {
-                const rawUrl = `https://raw.githubusercontent.com/${getConfig().repo}/main/${select.value}`;
-                preview.innerHTML = `<img src="${encodeURI(rawUrl)}" alt="preview">`;
-            } else {
-                preview.innerHTML = '';
-            }
-        });
+        if (!imageChangeBound) {
+            select.addEventListener('change', () => {
+                const preview = document.getElementById('image-preview');
+                const imageValue = select.value;
+                if (!imageValue) {
+                    preview.innerHTML = '';
+                    return;
+                }
+
+                let previewUrl = imageValue;
+                if (!/^https?:\/\//i.test(imageValue) && !/^data:image\//i.test(imageValue)) {
+                    previewUrl = `https://raw.githubusercontent.com/${getConfig().repo}/main/${imageValue}`;
+                }
+                preview.innerHTML = `<img src="${encodeURI(previewUrl)}" alt="preview">`;
+            });
+            imageChangeBound = true;
+        }
+
         select.dispatchEvent(new Event('change'));
+    }
+
+    async function uploadImage() {
+        const { token, repo } = getConfig();
+        const fileInput = document.getElementById('f-image-upload');
+        const file = fileInput.files && fileInput.files[0];
+
+        if (!token || !repo) return;
+        if (!file) {
+            showStatus('בחר קובץ תמונה לפני העלאה', 'error');
+            return;
+        }
+        if (!file.type.startsWith('image/')) {
+            showStatus('ניתן להעלות רק קבצי תמונה', 'error');
+            return;
+        }
+
+        const safeOriginalName = file.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9._-]/g, '');
+        const extension = (safeOriginalName.match(/\.[a-z0-9]+$/) || ['.jpg'])[0];
+        const baseName = safeOriginalName.replace(/\.[a-z0-9]+$/, '') || 'image';
+        const finalName = `${Date.now()}-${baseName}${extension}`;
+        const imagePath = `images/${finalName}`;
+        const encodedPath = imagePath.split('/').map(encodeURIComponent).join('/');
+
+        showStatus('מעלה תמונה...', 'loading');
+
+        try {
+            const base64Content = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const result = String(reader.result || '');
+                    const commaIndex = result.indexOf(',');
+                    if (commaIndex === -1) {
+                        reject(new Error('Invalid file data'));
+                        return;
+                    }
+                    resolve(result.slice(commaIndex + 1));
+                };
+                reader.onerror = () => reject(new Error('קריאת הקובץ נכשלה'));
+                reader.readAsDataURL(file);
+            });
+
+            const resp = await fetch(`https://api.github.com/repos/${repo}/contents/${encodedPath}`, {
+                method: 'PUT',
+                headers: ghHeaders(token),
+                body: JSON.stringify({
+                    message: `Upload image ${finalName} via admin`,
+                    content: base64Content
+                })
+            });
+
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+
+            const select = document.getElementById('f-image');
+            createImageOption(select, imagePath);
+            select.value = imagePath;
+            select.dispatchEvent(new Event('change'));
+            fileInput.value = '';
+            showStatus('התמונה הועלתה בהצלחה. לחץ "שמור וסנכרן" לשמירת הבחירה', 'success');
+        } catch (e) {
+            showStatus('שגיאה בהעלאת תמונה: ' + e.message, 'error');
+        }
     }
 
     async function saveData() {

@@ -184,7 +184,7 @@
         </div>
 
         <div class="area-image">
-            <img src="kotel.jpg" alt="Shul Image" class="shul-image" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Jerusalem_Symbol.svg/600px-Jerusalem_Symbol.svg.png'">
+            <img id="shul-image" src="kotel.jpg" alt="Shul Image" class="shul-image" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Jerusalem_Symbol.svg/600px-Jerusalem_Symbol.svg.png'">
         </div>
 
         <div class="shabbat-day-card area-day-times">
@@ -333,7 +333,20 @@
             document.getElementById('orot-time').innerText = calculateOrot(minchaShabbat);
             document.getElementById('arvit-motzash').innerText = calculateArvit(data.havdalah);
 
-            // 7. Dvar Torah
+            // 7. Image for web and print layouts
+            const imageEl = document.getElementById('shul-image');
+            const fallbackImage = 'kotel.jpg';
+            if (imageEl) {
+                let imageSrc = (data.image || '').trim();
+                if (!imageSrc) {
+                    imageSrc = fallbackImage;
+                } else if (!/^https?:\/\//i.test(imageSrc) && !/^data:image\//i.test(imageSrc)) {
+                    imageSrc = encodeURI(imageSrc);
+                }
+                imageEl.src = imageSrc;
+            }
+
+            // 8. Dvar Torah
             if (data.dvar_torah) {
                 document.getElementById('dvar-torah-text').innerText = data.dvar_torah;
                 if (data.dvar_source) document.getElementById('dvar-torah-source').innerText = data.dvar_source;
