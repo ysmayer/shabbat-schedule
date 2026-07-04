@@ -1,9 +1,10 @@
 import { calculateMincha, calculateMinchaShabbat, calculateOrot, calculateArvit } from '../utils/timeCalc';
 
-function Item({ time, label, highlight }) {
+function Item({ time, label, icon, iconAnim, highlight }) {
   return (
     <div className={highlight ? 'tl-item highlight' : 'tl-item'}>
       <span className="time">{time}</span>
+      {icon && <span className={`tl-icon ${iconAnim || ''}`} aria-hidden="true">{icon}</span>}
       <span className="desc">{label}</span>
     </div>
   );
@@ -28,7 +29,7 @@ export default function Timeline({ data }) {
       <section className="tl-section">
         <h3 className="section-header">ערב שבת</h3>
         <div className="tl-items">
-          <Item time={data.candles} label="הדלקת נרות שבת" highlight />
+          <Item time={data.candles} label="הדלקת נרות שבת" icon="🕯️" iconAnim="anim-candle" highlight />
           <Item time={minchaErev} label="מנחה, קבלת שבת וערבית" />
         </div>
       </section>
@@ -52,7 +53,7 @@ export default function Timeline({ data }) {
         <h3 className="section-header">מוצאי שבת</h3>
         <div className="tl-items">
           <Item time={arvit} label="ערבית של מוצאי שבת" />
-          <Item time={data.havdalah} label="צאת השבת" highlight />
+          <Item time={data.havdalah} label="צאת השבת" icon="✨" iconAnim="anim-stars" highlight />
         </div>
       </section>
     </div>

@@ -8,7 +8,7 @@ export default function DvarTorah({ data }) {
   return (
     <div className="dvar-torah-container">
       <button className="dt-btn" onClick={() => setOpen(!open)} aria-expanded={open}>
-        <span>📚 דבר תורה לשבת</span>
+        <span>📖 הלכה לשבת</span>
         <span className={open ? 'dt-arrow open' : 'dt-arrow'}>▼</span>
       </button>
       {open && (

@@ -59,12 +59,12 @@ export default function Countdown({ data }) {
     <div className="countdown-chip">
       {mode === 'during' ? (
         <>
-          <span className="cd-label">🕯️ שבת שלום! צאת השבת בעוד</span>
+          <span className="cd-label"><span className="anim-candle" aria-hidden="true">🕯️</span> שבת שלום! צאת השבת בעוד</span>
           <span className="cd-value">{formatRemaining(remaining)}</span>
         </>
       ) : (
         <>
-          <span className="cd-label">🕯️ שבת נכנסת בעוד</span>
+          <span className="cd-label"><span className="anim-candle" aria-hidden="true">🕯️</span> שבת נכנסת בעוד</span>
           <span className="cd-value">{formatRemaining(remaining)}</span>
         </>
       )}

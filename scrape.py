@@ -1,8 +1,8 @@
 import json
 import os
+import random
 import re
 import requests
-import urllib.parse
 from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
 from playwright.sync_api import sync_playwright
@@ -67,66 +67,66 @@ def strip_html(text):
     text = re.sub(r'\[\d+\]', '', text)
     return text.strip()
 
-# --- BAT AYIN FETCHER ---
-def fetch_bat_ayin(parsha_name):
-    # Try different URL structures for Bat Ayin
-    # Bat Ayin usually follows "Bat_Ayin,_Parsha"
-    ref = f"Bat_Ayin,_{parsha_name}"
-    
-    # We specifically request the version: Jerusalem, 2001
-    encoded_ref = urllib.parse.quote(ref.replace(" ", "_"))
-    url = f"https://www.sefaria.org/api/texts/{encoded_ref}?lang=he&version=hebrew|Jerusalem,_2001"
-    
-    print(f"Trying Bat Ayin URL: {url}")
-    
-    try:
-        resp = requests.get(url)
-        if resp.status_code == 200:
-            data = resp.json()
-            if 'he' in data and data['he']:
-                segments = data['he']
-                
-                # Filter: Find a "Goldilocks" section (400 - 1400 chars)
-                best_segment = ""
-                
-                # Bat Ayin structure: often a list of strings (sections)
-                # Sometimes nested. Let's flatten one level if needed.
-                flat_segments = []
-                if isinstance(segments, list):
-                    for s in segments:
-                        if isinstance(s, list):
-                            # Join sub-parts of a section into one text
-                            flat_segments.append(" ".join([str(x) for x in s]))
-                        else:
-                            flat_segments.append(str(s))
-                else:
-                    flat_segments = [str(segments)]
+# --- ARUKH HASHULCHAN FETCHER (Hilchot Shabbat: Orach Chaim 242-344) ---
+ARUKH_SIMAN_RANGE = (242, 344)
 
-                for segment in flat_segments:
-                    clean = strip_html(segment)
-                    length = len(clean)
-                    
-                    # Ideal length
-                    if 400 < length < 1400:
-                        print(f"✅ Found perfect Bat Ayin section ({length} chars)")
-                        return clean
-                    
-                    # Backup: Keep the shortest one that is at least 300 chars
-                    if length > 300:
-                        if best_segment == "" or length < len(best_segment):
-                            best_segment = clean
-                
-                if best_segment:
-                    print(f"⚠️ Using backup Bat Ayin section ({len(best_segment)} chars)")
-                    return best_segment
-                
-                # Fallback to first if nothing fits criteria
-                return strip_html(flat_segments[0])
+def to_hebrew_numeral(n):
+    """Convert an integer to a Hebrew numeral string (e.g. 242 -> רמ\"ב)."""
+    ones = ["", "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"]
+    tens = ["", "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ"]
+    hundreds = ["", "ק", "ר", "ש", "ת"]
+    result = ""
+    h = n // 100
+    result += "ת" * (h // 4) + hundreds[h % 4]
+    n %= 100
+    if n in (15, 16):
+        result += "ט" + ("ו" if n == 15 else "ז")
+    else:
+        result += tens[n // 10] + ones[n % 10]
+    if len(result) > 1:
+        result = result[:-1] + '"' + result[-1]
+    elif result:
+        result += "'"
+    return result
 
-    except Exception as e:
-        print(f"❌ Error fetching Bat Ayin: {e}")
-    
-    return None
+def fetch_arukh_hashulchan():
+    """Pick a random se'if from Arukh HaShulchan, Orach Chaim (Hilchot Shabbat).
+
+    Returns (text, source) or (None, None).
+    """
+    for attempt in range(5):
+        siman = random.randint(*ARUKH_SIMAN_RANGE)
+        url = f"https://www.sefaria.org/api/texts/Arukh_HaShulchan,_Orach_Chaim.{siman}?lang=he"
+        print(f"Trying Arukh HaShulchan siman {siman}: {url}")
+        try:
+            resp = requests.get(url, timeout=30)
+            if resp.status_code != 200:
+                continue
+            payload = resp.json()
+            segments = payload.get('he') or []
+            he_ref = payload.get('heRef', f"ערוך השולחן, אורח חיים {to_hebrew_numeral(siman)}")
+
+            # Goldilocks se'ifim: long enough to stand alone, short enough to read
+            candidates = []
+            for i, seg in enumerate(segments):
+                if isinstance(seg, list):
+                    seg = " ".join(str(x) for x in seg)
+                clean = strip_html(str(seg))
+                if 300 < len(clean) < 1400:
+                    candidates.append((i, clean))
+
+            if not candidates:
+                print(f"⚠️ No fitting se'if in siman {siman}, retrying...")
+                continue
+
+            idx, text = random.choice(candidates)
+            source = f"מקור: {he_ref}, סעיף {to_hebrew_numeral(idx + 1)}"
+            print(f"✅ Found Arukh HaShulchan se'if ({len(text)} chars): {source}")
+            return text, source
+        except Exception as e:
+            print(f"❌ Error fetching Arukh HaShulchan: {e}")
+
+    return None, None
 
 def load_manual_data():
     try:
@@ -207,16 +207,15 @@ def scrape_times():
     except Exception as e:
         print(f"❌ Metadata Error: {e}")
 
-    # 2. BAT AYIN (Replaced Sefat Emet)
-    if english_parsha:
-        print(f"📚 Step 2: Fetching Bat Ayin...")
-        text = fetch_bat_ayin(english_parsha)
-        if text:
-            data["dvar_source"] = f"מקור: בת עין, {hebrew_parsha_name}"
-            data["dvar_torah"] = text # Use full text found
-            print("✅ Bat Ayin Found!")
-        else:
-            print("⚠️ Bat Ayin not found.")
+    # 2. ARUKH HASHULCHAN (Replaced Bat Ayin) — random halakha from Hilchot Shabbat
+    print("📚 Step 2: Fetching Arukh HaShulchan (Hilchot Shabbat)...")
+    text, source = fetch_arukh_hashulchan()
+    if text:
+        data["dvar_torah"] = text
+        data["dvar_source"] = source
+        print("✅ Arukh HaShulchan Found!")
+    else:
+        print("⚠️ Arukh HaShulchan not found.")
 
     # Resolve image based on parsha
     data["image"] = resolve_image(english_parsha, manual_config)
