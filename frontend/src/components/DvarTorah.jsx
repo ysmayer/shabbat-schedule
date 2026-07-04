@@ -6,19 +6,15 @@ export default function DvarTorah({ data }) {
   if (!data.dvar_torah) return null;
 
   return (
-    <div className="dvar-torah-container area-dt">
-      <button className="dt-btn" onClick={() => setOpen(!open)}>
+    <div className="dvar-torah-container">
+      <button className="dt-btn" onClick={() => setOpen(!open)} aria-expanded={open}>
         <span>📚 דבר תורה לשבת</span>
-        <span>{open ? '▲' : '▼'}</span>
+        <span className={open ? 'dt-arrow open' : 'dt-arrow'}>▼</span>
       </button>
       {open && (
-        <div className="dt-content" style={{ display: 'block' }}>
+        <div className="dt-content">
           <div>{data.dvar_torah}</div>
-          {data.dvar_source && (
-            <div style={{ marginTop: 10, fontWeight: 'bold', color: '#666', fontSize: '0.9rem' }}>
-              {data.dvar_source}
-            </div>
-          )}
+          {data.dvar_source && <div className="dt-source">{data.dvar_source}</div>}
         </div>
       )}
     </div>

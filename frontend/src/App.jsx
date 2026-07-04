@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import Header from './components/Header';
+import Countdown from './components/Countdown';
 import MessagesCard from './components/MessagesCard';
-import TimesCard from './components/TimesCard';
-import ShabbatDayCard from './components/ShabbatDayCard';
-import ImagePanel from './components/ImagePanel';
+import Timeline from './components/Timeline';
 import DvarTorah from './components/DvarTorah';
-import PrintButton from './components/PrintButton';
+import ActionButtons from './components/ActionButtons';
 
 export default function App() {
   const [data, setData] = useState(null);
@@ -34,10 +33,8 @@ export default function App() {
   if (error && !data) {
     return (
       <div className="web-container">
-        <div className="layout-grid">
-          <div className="header-card area-header" style={{ textAlign: 'center' }}>
-            <div className="main-title">שגיאה בטעינת נתונים</div>
-          </div>
+        <div className="error-card">
+          <div className="main-title">שגיאה בטעינת נתונים</div>
         </div>
       </div>
     );
@@ -45,20 +42,15 @@ export default function App() {
 
   return (
     <div className="web-container">
-      <div className="layout-grid">
-        <Header data={data} />
-        <TimesCard data={data} />
-        <ImagePanel data={data} />
-        <ShabbatDayCard data={data} />
-        <div className="area-footer">
-          <div className="footer-shabbat" style={{ textAlign: 'center', marginTop: 30, fontWeight: 'bold', fontSize: '1.5rem' }}>
-            שבת שלום!
-          </div>
-        </div>
-        <MessagesCard messages={data.messages} />
-        <DvarTorah data={data} />
-        <PrintButton />
-      </div>
+      <Header data={data} />
+      <Countdown data={data} />
+      <MessagesCard messages={data.messages} />
+      <Timeline data={data} />
+      <DvarTorah data={data} />
+      <ActionButtons />
+      <footer className="footer-shabbat">
+        <span className="footer-orn">✦</span> שבת שלום! <span className="footer-orn">✦</span>
+      </footer>
     </div>
   );
 }
