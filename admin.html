@@ -139,6 +139,20 @@
         el.innerText = msg;
     }
 
+    // Turn a GitHub API failure status into an actionable Hebrew hint.
+    function ghErrorHint(status) {
+        if (status === 401) return 'הטוקן שגוי או פג תוקף — צור טוקן חדש והתחבר מחדש.';
+        if (status === 403) return 'לטוקן אין הרשאת כתיבה. בטוקן fine-grained הפעל "Contents: Read and write" (ולכפתור עדכון נתונים גם "Actions: Read and write") על המאגר; בטוקן קלאסי סמן את ה-scope בשם repo.';
+        if (status === 404) return 'המאגר או הקובץ לא נמצאו — בדוק שם repo בפורמט owner/repo.';
+        if (status === 409 || status === 422) return 'הנתונים בשרת השתנו — רענן את הדף ונסה שוב.';
+        return '';
+    }
+
+    async function ghFail(resp) {
+        const hint = ghErrorHint(resp.status);
+        return new Error(`HTTP ${resp.status}${hint ? ' — ' + hint : ''}`);
+    }
+
     function saveSetup() {
         const token = document.getElementById('gh-token').value.trim();
         const repo = document.getElementById('gh-repo').value.trim();
@@ -167,7 +181,17 @@
             const resp = await fetch(`https://api.github.com/repos/${repo}/contents/manual_data.json`, {
                 headers: ghHeaders(token)
             });
-            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            if (resp.status === 404) {
+                // manual_data.json doesn't exist yet — start with a blank editor.
+                currentSHA = null;
+                setSummer(null);
+                await loadImages('');
+                document.getElementById('setup-card').style.display = 'none';
+                document.getElementById('editor').style.display = 'block';
+                showStatus('לא נמצא קובץ נתונים — מלא ושמור ליצירתו', 'success');
+                return;
+            }
+            if (!resp.ok) throw await ghFail(resp);
             const file = await resp.json();
             currentSHA = file.sha;
 
@@ -293,7 +317,7 @@
                 })
             });
 
-            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            if (!resp.ok) throw await ghFail(resp);
 
             const select = document.getElementById('f-image');
             createImageOption(select, imagePath);
@@ -323,9 +347,10 @@
         try {
             const body = {
                 message: 'Update manual_data.json via admin',
-                content: btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2)))),
-                sha: currentSHA
+                content: btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))))
             };
+            // Only send sha when updating an existing file; omit it to create a new one.
+            if (currentSHA) body.sha = currentSHA;
 
             const resp = await fetch(`https://api.github.com/repos/${repo}/contents/manual_data.json`, {
                 method: 'PUT',
@@ -333,7 +358,7 @@
                 body: JSON.stringify(body)
             });
 
-            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            if (!resp.ok) throw await ghFail(resp);
             const result = await resp.json();
             currentSHA = result.content.sha;
             showStatus('נשמר בהצלחה! ✅', 'success');
@@ -354,7 +379,7 @@
                 body: JSON.stringify({ ref: 'main' })
             });
 
-            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            if (!resp.ok) throw await ghFail(resp);
             showStatus('העדכון הופעל! הנתונים יתעדכנו בעוד כ-2 דקות. 🔄', 'success');
         } catch (e) {
             showStatus('שגיאה בהפעלה: ' + e.message, 'error');
