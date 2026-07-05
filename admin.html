@@ -334,29 +334,40 @@
         const { token, repo } = getConfig();
         if (!token || !repo) return;
 
+        // Empty fields are saved as empty strings (trimmed) so clearing a field
+        // actually clears it on the site — e.g. removing an announcement.
+        const val = (id) => document.getElementById(id).value.trim();
         const data = {
-            shiur_topic: document.getElementById('f-shiur').value,
-            kidush: document.getElementById('f-kidush').value,
-            messages: document.getElementById('f-messages').value,
-            description: document.getElementById('f-description').value,
+            shiur_topic: val('f-shiur'),
+            kidush: val('f-kidush'),
+            messages: val('f-messages'),
+            description: val('f-description'),
             is_summer: summerValue,
             image: document.getElementById('f-image').value || null
         };
 
         showStatus('שומר...', 'loading');
         try {
-            const body = {
-                message: 'Update manual_data.json via admin',
-                content: btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))))
-            };
-            // Only send sha when updating an existing file; omit it to create a new one.
-            if (currentSHA) body.sha = currentSHA;
+            const url = `https://api.github.com/repos/${repo}/contents/manual_data.json`;
+            const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
 
-            const resp = await fetch(`https://api.github.com/repos/${repo}/contents/manual_data.json`, {
-                method: 'PUT',
-                headers: ghHeaders(token),
-                body: JSON.stringify(body)
-            });
+            const put = () => {
+                const body = { message: 'Update manual_data.json via admin', content };
+                // Only send sha when updating an existing file; omit it to create one.
+                if (currentSHA) body.sha = currentSHA;
+                return fetch(url, { method: 'PUT', headers: ghHeaders(token), body: JSON.stringify(body) });
+            };
+
+            let resp = await put();
+            // A stale sha yields 409/422 — refetch the current sha and retry once
+            // so a save (including clearing a field) reliably lands.
+            if (resp.status === 409 || resp.status === 422) {
+                const latest = await fetch(url, { headers: ghHeaders(token) });
+                if (latest.ok) {
+                    currentSHA = (await latest.json()).sha;
+                    resp = await put();
+                }
+            }
 
             if (!resp.ok) throw await ghFail(resp);
             const result = await resp.json();
