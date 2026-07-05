@@ -12,6 +12,13 @@ permissions:
   pages: write
   id-token: write
 
+# Allow only one Pages deployment at a time; queue others instead of failing.
+# Without this, rapid pushes / an overlapping scheduled run collide on the
+# single active Pages deployment and the losing run fails at "Deploy to GitHub Pages".
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   scrape-and-deploy:
     runs-on: ubuntu-latest
