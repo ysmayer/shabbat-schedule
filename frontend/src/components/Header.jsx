@@ -15,9 +15,6 @@ export default function Header({ data }) {
         <h1 className="main-title">שבת קודש פרשת {data.parsha || 'השבוע'}</h1>
         <div className="hero-ornament" aria-hidden="true">✦</div>
         {data.description && <div className="sub-title">{data.description}</div>}
-        {data.description && data.molad && (
-          <div className="molad-text">{data.molad}</div>
-        )}
         <div className="key-times">
           <span className="key-chip"><span className="anim-candle" aria-hidden="true">🕯️</span> הדלקת נרות <b className="key-time">{data.candles}</b></span>
           <span className="key-chip"><span className="anim-stars" aria-hidden="true">✨</span> צאת השבת <b className="key-time">{data.havdalah}</b></span>

@@ -255,6 +255,27 @@ def load_manual_data():
     except Exception:
         return {}
 
+HEB_WEEKDAYS = {
+    "Sunday": "ראשון", "Monday": "שני", "Tuesday": "שלישי", "Wednesday": "רביעי",
+    "Thursday": "חמישי", "Friday": "שישי", "Saturday": "שבת",
+}
+
+def format_molad(mevarchim_item):
+    """Build a Hebrew molad line from Hebcal's mevarchim memo.
+
+    memo looks like: 'Molad Av: Tuesday, 19:30 and 17 chalakim'.
+    Returns '' if the format is unexpected.
+    """
+    memo = mevarchim_item.get("memo", "") or ""
+    m = re.search(r'Molad .+?:\s*(\w+),\s*(\d{1,2}:\d{2})\s*and\s*(\d+)\s*chalakim', memo)
+    if not m:
+        return ""
+    weekday_he = HEB_WEEKDAYS.get(m.group(1), m.group(1))
+    time_str, chalakim = m.group(2), m.group(3)
+    month_he = (mevarchim_item.get("hebrew", "") or "").replace("מברכים חודש", "").strip()
+    prefix = f"מולד חודש {month_he}" if month_he else "המולד"
+    return f"{prefix}: יום {weekday_he}, בשעה {time_str} ו-{chalakim} חלקים"
+
 def detect_is_summer(friday_date):
     """Check if Israel is in summer time (DST) on the given Friday."""
     tz = ZoneInfo("Asia/Jerusalem")
@@ -324,6 +345,13 @@ def scrape_times():
             english_parsha = parsha_item['title'].replace("Parashat ", "").strip()
             print(f"📖 Parsha: {data['parsha']}")
 
+        # Molad comes straight from Hebcal's mevarchim item (M=on above); it is a
+        # fixed calculated value, identical in every luach, so no scraping needed.
+        molad_item = next((x for x in h_data['items'] if x['category'] == 'mevarchim'), None)
+        if molad_item:
+            data["molad"] = format_molad(molad_item)
+            print(f"🌙 Molad: {data['molad']}")
+
     except Exception as e:
         print(f"❌ Metadata Error: {e}")
 
@@ -364,12 +392,6 @@ def scrape_times():
 
             havdalah_search = re.search(r'צאת השבת.*?(\d{1,2}:\d{2})', clean_text)
             if havdalah_search: data["havdalah"] = to_24h(havdalah_search.group(1))
-
-            if is_mevarchim:
-                molad_match = re.search(r'(המולד.*?)(?:\.|\n|$)', text_content)
-                if molad_match:
-                    raw_molad = molad_match.group(1).strip()
-                    data["molad"] = re.sub(r'\s+', ' ', raw_molad)
 
         except Exception as e:
             print(f"❌ Scrape Error: {e}")

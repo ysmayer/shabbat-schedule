@@ -38,6 +38,12 @@ export default function Timeline({ data }) {
         <h3 className="section-header">שבת קודש</h3>
         <div className="tl-items">
           <Item time={isSummer ? '8:00' : '7:45'} label="שחרית ומוסף" />
+          {data.molad && (
+            <div className="molad-note">
+              <span className="molad-moon" aria-hidden="true">🌒</span>
+              <span>{data.molad}</span>
+            </div>
+          )}
           <Item time={isSummer ? '9:30' : '9:15'} label="תפילת ילדים" />
           {infoText && (
             <div className="note-text" style={{ fontWeight: infoIsBold ? 'bold' : 'normal' }}>
