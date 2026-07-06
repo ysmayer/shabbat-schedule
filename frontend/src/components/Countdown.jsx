@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLang, formatRemaining } from '../i18n';
 
 function atTime(baseDate, timeStr) {
   const d = new Date(baseDate);
@@ -29,19 +30,8 @@ function getShabbatState(candles, havdalah, now) {
   return { mode: 'before', target: atTime(friday, candles) };
 }
 
-function formatRemaining(ms) {
-  const totalMinutes = Math.floor(ms / 60000);
-  const days = Math.floor(totalMinutes / 1440);
-  const hours = Math.floor((totalMinutes % 1440) / 60);
-  const minutes = totalMinutes % 60;
-  const parts = [];
-  if (days > 0) parts.push(days === 1 ? 'יום אחד' : `${days} ימים`);
-  if (hours > 0) parts.push(hours === 1 ? 'שעה אחת' : `${hours} שעות`);
-  parts.push(minutes === 1 ? 'דקה אחת' : `${minutes} דקות`);
-  return parts.join(' · ');
-}
-
 export default function Countdown({ data }) {
+  const { t, lang } = useLang();
   const [now, setNow] = useState(() => new Date());
 
   useEffect(() => {
@@ -57,17 +47,8 @@ export default function Countdown({ data }) {
 
   return (
     <div className="countdown-chip">
-      {mode === 'during' ? (
-        <>
-          <span className="cd-label"><span className="anim-candle" aria-hidden="true">🕯️</span> שבת שלום! צאת השבת בעוד</span>
-          <span className="cd-value">{formatRemaining(remaining)}</span>
-        </>
-      ) : (
-        <>
-          <span className="cd-label"><span className="anim-candle" aria-hidden="true">🕯️</span> שבת נכנסת בעוד</span>
-          <span className="cd-value">{formatRemaining(remaining)}</span>
-        </>
-      )}
+      <span className="cd-label"><span className="anim-candle" aria-hidden="true">🕯️</span> {mode === 'during' ? t('cdDuring') : t('cdBefore')}</span>
+      <span className="cd-value">{formatRemaining(lang, remaining)}</span>
     </div>
   );
 }

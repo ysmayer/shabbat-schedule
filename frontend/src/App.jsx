@@ -5,8 +5,10 @@ import MessagesCard from './components/MessagesCard';
 import Timeline from './components/Timeline';
 import DvarTorah from './components/DvarTorah';
 import ActionButtons from './components/ActionButtons';
+import { LangProvider, useLang } from './i18n';
 
-export default function App() {
+function AppContent() {
+  const { t } = useLang();
   const [data, setData] = useState(null);
   const [error, setError] = useState(false);
 
@@ -34,7 +36,7 @@ export default function App() {
     return (
       <div className="web-container">
         <div className="error-card">
-          <div className="main-title">שגיאה בטעינת נתונים</div>
+          <div className="main-title">{t('error')}</div>
         </div>
       </div>
     );
@@ -49,8 +51,16 @@ export default function App() {
       <DvarTorah data={data} />
       <ActionButtons />
       <footer className="footer-shabbat">
-        <span className="footer-orn">✦</span> שבת שלום! <span className="footer-orn">✦</span>
+        <span className="footer-orn">✦</span> {t('footer')} <span className="footer-orn">✦</span>
       </footer>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <LangProvider>
+      <AppContent />
+    </LangProvider>
   );
 }

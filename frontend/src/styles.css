@@ -171,7 +171,7 @@ body {
 .messages-card {
     background: var(--gold-soft);
     border: 1px solid #e3d3a3;
-    border-right: 4px solid var(--gold);
+    border-inline-start: 4px solid var(--gold);
     border-radius: 14px;
     padding: 16px 18px;
     text-align: center;
@@ -211,9 +211,9 @@ body {
 }
 
 .tl-items {
-    border-right: 2px solid #e9e2d2;
-    margin-right: 7px;
-    padding-right: 22px;
+    border-inline-start: 2px solid #e9e2d2;
+    margin-inline-start: 7px;
+    padding-inline-start: 22px;
 }
 
 .tl-item {
@@ -227,7 +227,7 @@ body {
 .tl-item::before {
     content: '';
     position: absolute;
-    right: -28px;
+    inset-inline-start: -28px;
     top: 50%;
     transform: translateY(-50%);
     width: 10px;
@@ -242,7 +242,7 @@ body {
     background: var(--gold);
     width: 12px;
     height: 12px;
-    right: -29px;
+    inset-inline-start: -29px;
     box-shadow: 0 0 0 2px var(--gold-soft), 0 0 0 3px var(--gold);
 }
 
@@ -313,13 +313,13 @@ body {
 .note-text {
     background: #fffaf0;
     border: 1px solid #f0e3c0;
-    border-right: 3px solid var(--gold);
+    border-inline-start: 3px solid var(--gold);
     padding: 10px 14px;
     border-radius: 10px;
     margin: 8px 0;
     font-size: 0.98rem;
     color: #795548;
-    text-align: right;
+    text-align: start;
     unicode-bidi: plaintext;
 }
 
@@ -332,7 +332,7 @@ body {
     padding: 8px 12px;
     background: #eef2fb;
     border: 1px solid #d9e2f5;
-    border-right: 3px solid var(--primary);
+    border-inline-start: 3px solid var(--primary);
     border-radius: 10px;
     font-size: 0.92rem;
     color: #33456b;
@@ -458,6 +458,51 @@ body {
     vertical-align: middle;
 }
 
+/* ===== LANGUAGE TOGGLE (small floating corner pill, flags only) ===== */
+.lang-toggle {
+    position: fixed;
+    bottom: 10px;
+    inset-inline-end: 10px;
+    z-index: 50;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.14);
+    backdrop-filter: blur(4px);
+    border-radius: 999px;
+    padding: 5px 8px;
+}
+
+.lang-btn {
+    display: inline-flex;
+    background: transparent;
+    border: none;
+    padding: 2px;
+    border-radius: 4px;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.15s, box-shadow 0.15s;
+}
+
+.lang-btn:hover {
+    opacity: 0.85;
+}
+
+.lang-btn.active {
+    opacity: 1;
+    box-shadow: 0 0 0 2px var(--primary);
+}
+
+.lang-flag {
+    width: 19px;
+    height: 13px;
+    border-radius: 2px;
+    display: block;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
 /* ===== MISC ===== */
 .error-card {
     background: white;
@@ -506,7 +551,6 @@ body {
         color: black;
         print-color-adjust: exact;
         -webkit-print-color-adjust: exact;
-        direction: rtl;
     }
 
     .web-container {
@@ -522,6 +566,7 @@ body {
     .countdown-chip,
     .action-row,
     .dvar-torah-container,
+    .lang-toggle,
     .loader {
         display: none !important;
     }
@@ -561,9 +606,10 @@ body {
     .molad-note {
         background: none;
         border: none;
-        border-right: 2px solid var(--primary);
+        border-inline-start: 2px solid var(--primary);
         border-radius: 0;
-        padding: 0 3mm 0 0;
+        padding: 0;
+        padding-inline-start: 3mm;
         margin: 1.5mm 0;
         color: black;
         font-size: 11.5pt;
@@ -602,9 +648,9 @@ body {
     }
 
     .tl-items {
-        border-right: none;
-        margin-right: 0;
-        padding-right: 0;
+        border-inline-start: none;
+        margin-inline-start: 0;
+        padding-inline-start: 0;
     }
 
     .tl-item::before { display: none !important; }
@@ -628,7 +674,7 @@ body {
         font-weight: 800;
         padding: 0;
         min-width: 18mm;
-        text-align: right;
+        text-align: start;
     }
 
     .tl-item.highlight .time { color: var(--primary) !important; background: none; font-size: 13.5pt; }
@@ -638,9 +684,10 @@ body {
     .note-text {
         background: none;
         border: none;
-        border-right: 2px solid var(--gold);
+        border-inline-start: 2px solid var(--gold);
         border-radius: 0;
-        padding: 0 3mm 0 0;
+        padding: 0;
+        padding-inline-start: 3mm;
         margin: 1.5mm 0;
         color: black;
         font-style: italic;

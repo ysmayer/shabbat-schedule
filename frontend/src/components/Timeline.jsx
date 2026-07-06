@@ -1,4 +1,5 @@
 import { calculateMincha, calculateMinchaShabbat, calculateOrot, calculateArvit } from '../utils/timeCalc';
+import { useLang, moladText } from '../i18n';
 
 function Item({ time, label, icon, iconAnim, highlight }) {
   return (
@@ -11,55 +12,57 @@ function Item({ time, label, icon, iconAnim, highlight }) {
 }
 
 export default function Timeline({ data }) {
+  const { t, lang } = useLang();
   const isSummer = data.is_summer === true;
   const minchaErev = calculateMincha(data.candles);
   const minchaShabbat = calculateMinchaShabbat(data);
   const orot = calculateOrot(minchaShabbat);
   const arvit = calculateArvit(data.havdalah);
+  const molad = moladText(lang, data);
 
   const infoText = data.kidush?.trim()
     ? data.kidush
     : data.shiur_topic?.trim()
-      ? `שיעור מאת הרב נתנאל ב${data.shiur_topic} לאחר התפילה`
+      ? t('shiurNote', data.shiur_topic)
       : null;
   const infoIsBold = !!(data.kidush?.trim());
 
   return (
     <div className="timeline-card">
       <section className="tl-section">
-        <h3 className="section-header">ערב שבת</h3>
+        <h3 className="section-header">{t('erevShabbat')}</h3>
         <div className="tl-items">
-          <Item time={data.candles} label="הדלקת נרות שבת" icon="🕯️" iconAnim="anim-candle" highlight />
-          <Item time={minchaErev} label="מנחה, קבלת שבת וערבית" />
+          <Item time={data.candles} label={t('candlesFull')} icon="🕯️" iconAnim="anim-candle" highlight />
+          <Item time={minchaErev} label={t('minchaErev')} />
         </div>
       </section>
 
       <section className="tl-section">
-        <h3 className="section-header">שבת קודש</h3>
+        <h3 className="section-header">{t('shabbatDay')}</h3>
         <div className="tl-items">
-          <Item time={isSummer ? '8:00' : '7:45'} label="שחרית ומוסף" />
-          {data.molad && (
+          <Item time={isSummer ? '8:00' : '7:45'} label={t('shacharit')} />
+          {molad && (
             <div className="molad-note">
               <span className="molad-moon" aria-hidden="true">🌒</span>
-              <span>{data.molad}</span>
+              <span>{molad}</span>
             </div>
           )}
-          <Item time={isSummer ? '9:30' : '9:15'} label="תפילת ילדים" />
+          <Item time={isSummer ? '9:30' : '9:15'} label={t('kidsPrayer')} />
           {infoText && (
             <div className="note-text" style={{ fontWeight: infoIsBold ? 'bold' : 'normal' }}>
               {infoText}
             </div>
           )}
-          <Item time={orot} label='לימוד בספר "אורות"' />
-          <Item time={minchaShabbat} label="מנחה של שבת" />
+          <Item time={orot} label={t('orotStudy')} />
+          <Item time={minchaShabbat} label={t('minchaShabbat')} />
         </div>
       </section>
 
       <section className="tl-section">
-        <h3 className="section-header">מוצאי שבת</h3>
+        <h3 className="section-header">{t('motzash')}</h3>
         <div className="tl-items">
-          <Item time={arvit} label="ערבית של מוצאי שבת" />
-          <Item time={data.havdalah} label="צאת השבת" icon="✨" iconAnim="anim-stars" highlight />
+          <Item time={arvit} label={t('arvitMotzash')} />
+          <Item time={data.havdalah} label={t('havdalah')} icon="✨" iconAnim="anim-stars" highlight />
         </div>
       </section>
     </div>

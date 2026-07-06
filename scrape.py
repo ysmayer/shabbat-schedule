@@ -260,21 +260,59 @@ HEB_WEEKDAYS = {
     "Thursday": "חמישי", "Friday": "שישי", "Saturday": "שבת",
 }
 
-def format_molad(mevarchim_item):
-    """Build a Hebrew molad line from Hebcal's mevarchim memo.
+def parse_molad_memo(memo):
+    """Parse Hebcal's mevarchim memo into structured parts.
 
     memo looks like: 'Molad Av: Tuesday, 19:30 and 17 chalakim'.
-    Returns '' if the format is unexpected.
+    Returns None if the format is unexpected.
     """
-    memo = mevarchim_item.get("memo", "") or ""
-    m = re.search(r'Molad .+?:\s*(\w+),\s*(\d{1,2}:\d{2})\s*and\s*(\d+)\s*chalakim', memo)
+    m = re.search(r'Molad\s+(.+?):\s*(\w+),\s*(\d{1,2}:\d{2})\s*and\s*(\d+)\s*chalakim', memo or "")
     if not m:
+        return None
+    return {
+        "month_en": m.group(1).strip(),
+        "weekday_en": m.group(2),
+        "time": m.group(3),
+        "chalakim": int(m.group(4)),
+    }
+
+def get_rosh_chodesh_days(shabbat_date):
+    """Gregorian date(s) of the upcoming Rosh Chodesh (1 or 2 days)."""
+    d = shabbat_date
+    first = None
+    for _ in range(12):
+        d = d + timedelta(days=1)
+        if dates.HebrewDate.from_pydate(d).day == 1:
+            first = d
+            break
+    if first is None:
+        return []
+    prev = first - timedelta(days=1)
+    if dates.HebrewDate.from_pydate(prev).day == 30:
+        return [prev, first]
+    return [first]
+
+def format_rosh_chodesh_he(rc_dates):
+    names = [HEB_WEEKDAYS.get(d.strftime("%A"), "") for d in rc_dates]
+    names = [n for n in names if n]
+    if not names:
         return ""
-    weekday_he = HEB_WEEKDAYS.get(m.group(1), m.group(1))
-    time_str, chalakim = m.group(2), m.group(3)
-    month_he = (mevarchim_item.get("hebrew", "") or "").replace("מברכים חודש", "").strip()
-    prefix = f"מולד חודש {month_he}" if month_he else "המולד"
-    return f"{prefix}: יום {weekday_he}, בשעה {time_str} ו-{chalakim} חלקים"
+    if len(names) == 1:
+        return "ראש חודש בשבת" if names[0] == "שבת" else f"ראש חודש ביום {names[0]}"
+    return f"ראש חודש בימים {names[0]} ו{names[1]}"
+
+def format_molad(parts, rc_dates):
+    """Build the Hebrew molad line, e.g.
+    'המולד יהיה ביום שלישי, בשעה 19:30 ו-17 חלקים, ראש חודש ביום רביעי'.
+    """
+    if not parts:
+        return ""
+    weekday_he = HEB_WEEKDAYS.get(parts["weekday_en"], parts["weekday_en"])
+    line = f"המולד יהיה ביום {weekday_he}, בשעה {parts['time']} ו-{parts['chalakim']} חלקים"
+    rc = format_rosh_chodesh_he(rc_dates)
+    if rc:
+        line += f", {rc}"
+    return line
 
 def detect_is_summer(friday_date):
     """Check if Israel is in summer time (DST) on the given Friday."""
@@ -305,8 +343,11 @@ def scrape_times():
     
     data = {
         "parsha": "שבת שלום",
-        "description": manual_config.get("description", ""), 
-        "molad": "", 
+        "parsha_en": "",
+        "description": manual_config.get("description", ""),
+        "molad": "",
+        "molad_parts": None,
+        "mevarchim": False,
         "candles": "16:00",
         "havdalah": "17:00",
         "dvar_torah": "",
@@ -322,34 +363,46 @@ def scrape_times():
     english_parsha = ""
     hebrew_parsha_name = ""
     is_mevarchim = False
+    description_is_auto = not manual_config.get("description")
 
     # 1. METADATA & MEVARCHIM
     print("🤖 Step 1: Hebcal Metadata...")
     try:
         shabbat_date = get_next_shabbat_date_obj()
         heb_date = dates.HebrewDate.from_pydate(shabbat_date)
-        
+
         if 23 <= heb_date.day <= 29:
             is_mevarchim = True
-            if not data["description"]:
+            data["mevarchim"] = True
+            if description_is_auto:
                 data["description"] = "שבת מברכין"
             print("🌙 Status: Mevarchim Detected")
 
         h_url = f"https://www.hebcal.com/shabbat?cfg=json&geonameid=281184&M=on&date={friday_iso}"
         h_data = requests.get(h_url).json()
-        
+
         parsha_item = next((x for x in h_data['items'] if x['category'] == 'parashat'), None)
         if parsha_item:
             data["parsha"] = parsha_item['hebrew'].replace("פרשת", "").strip()
             hebrew_parsha_name = data["parsha"]
             english_parsha = parsha_item['title'].replace("Parashat ", "").strip()
+            data["parsha_en"] = english_parsha
             print(f"📖 Parsha: {data['parsha']}")
 
         # Molad comes straight from Hebcal's mevarchim item (M=on above); it is a
         # fixed calculated value, identical in every luach, so no scraping needed.
         molad_item = next((x for x in h_data['items'] if x['category'] == 'mevarchim'), None)
         if molad_item:
-            data["molad"] = format_molad(molad_item)
+            month_he = (molad_item.get("hebrew", "") or "").replace("מברכים חודש", "").strip()
+            rc_dates = get_rosh_chodesh_days(shabbat_date)
+            parts = parse_molad_memo(molad_item.get("memo", ""))
+            if parts:
+                parts["month_he"] = month_he
+                parts["rosh_chodesh_weekdays_en"] = [d.strftime("%A") for d in rc_dates]
+                data["molad_parts"] = parts
+            data["molad"] = format_molad(parts, rc_dates)
+            if description_is_auto and is_mevarchim and month_he:
+                data["description"] = f"שבת מברכין חודש {month_he}"
             print(f"🌙 Molad: {data['molad']}")
 
     except Exception as e:

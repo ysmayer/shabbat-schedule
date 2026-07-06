@@ -1,4 +1,8 @@
+import { useLang } from '../i18n';
+
 export default function ActionButtons() {
+  const { t } = useLang();
+
   const handleShare = async () => {
     const url = window.location.href;
     const title = document.title;
@@ -20,10 +24,10 @@ export default function ActionButtons() {
   return (
     <div className="action-row">
       <button onClick={() => window.print()} className="btn-action btn-print">
-        🖨️ הדפס / שמור כ-PDF
+        {t('print')}
       </button>
       <button onClick={handleShare} className="btn-action btn-share">
-        📤 שיתוף
+        {t('share')}
       </button>
     </div>
   );
